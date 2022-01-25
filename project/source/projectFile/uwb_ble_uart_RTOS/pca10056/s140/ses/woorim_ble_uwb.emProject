@@ -107,7 +107,6 @@
       <file file_name="../../../../../../modules/nrfx/drivers/src/nrfx_uarte.c" />
       <file file_name="../../../../../../modules/nrfx/drivers/src/nrfx_saadc.c" />
       <file file_name="$(NordicSDKDir)/modules/nrfx/drivers/src/nrfx_spi.c" />
-      <file file_name="$(NordicSDKDir)/modules/nrfx/drivers/src/nrfx_spim.c" />
       <file file_name="../../../../../../integration/nrfx/legacy/nrf_drv_spi.c" />
     </folder>
     <folder Name="Board Support">
@@ -192,6 +191,7 @@
         </folder>
       </folder>
       <file file_name="../../../../../../DW3000_API_C0_rev4p0/API/Src/example_selection.h" />
+      <file file_name="$(NordicSDKDir)/modules/nrfx/drivers/src/nrfx_spim.c" />
     </folder>
     <configuration
       Name="Release"

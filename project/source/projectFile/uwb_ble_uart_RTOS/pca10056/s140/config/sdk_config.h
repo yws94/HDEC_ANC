@@ -12489,14 +12489,14 @@
 
 // <o> NRF_SDH_BLE_CENTRAL_LINK_COUNT - Maximum number of central links. 
 #ifndef NRF_SDH_BLE_CENTRAL_LINK_COUNT
-#define NRF_SDH_BLE_CENTRAL_LINK_COUNT 3
+#define NRF_SDH_BLE_CENTRAL_LINK_COUNT 8
 #endif
 
 // <o> NRF_SDH_BLE_TOTAL_LINK_COUNT - Total link count. 
 // <i> Maximum number of total concurrent connections using the default configuration.
 
 #ifndef NRF_SDH_BLE_TOTAL_LINK_COUNT
-#define NRF_SDH_BLE_TOTAL_LINK_COUNT 3
+#define NRF_SDH_BLE_TOTAL_LINK_COUNT 8
 #endif
 
 // <o> NRF_SDH_BLE_GAP_EVENT_LENGTH - GAP event length. 
@@ -12508,7 +12508,7 @@
 
 // <o> NRF_SDH_BLE_GATT_MAX_MTU_SIZE - Static maximum MTU size. 
 #ifndef NRF_SDH_BLE_GATT_MAX_MTU_SIZE
-#define NRF_SDH_BLE_GATT_MAX_MTU_SIZE 247
+#define NRF_SDH_BLE_GATT_MAX_MTU_SIZE 247//247
 #endif
 
 // <o> NRF_SDH_BLE_GATTS_ATTR_TAB_SIZE - Attribute Table size in bytes. The size must be a multiple of 4. 

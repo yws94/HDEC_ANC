@@ -159,6 +159,11 @@ static TimerHandle_t uwb_timer;                               /**< Definition of
 
 static uint8_t m_range_round[] = {0,0,0,0,0,0,0,0};                                    /**< Range rounde data. */                                    
 static uint8_t status_flag;
+static uint8_t Handler1[7];
+static uint8_t Handler2[7];
+static uint8_t TAG_ID[7];
+static uint8_t    round;
+static uint8_t block_cnt;
 
 #if NRF_LOG_ENABLED
 static TaskHandle_t m_logger_thread;                                /**< Definition of Logger thread. */
@@ -287,13 +292,27 @@ int Arrange_Round(void){
     return Empty_Round[0];
 }
 
+int Check_Round(void)
+{
+    uint8_t cnt = 0;
+
+    for(int i=1;i<8;i++)
+    {
+        if(m_range_round[i] == 1)
+        {
+            return 1;
+        }
+    }
+    return 0;   
+}
 
 static void RCIVE_MSG_handler(uint8_t * r_data)
 {
-      switch(r_data[1])
+      switch(r_data[0])
       {
         case 0x01: 
            if (r_data[2] == 0xAC){
+           TAG_ID[r_data[3]-1] = r_data[1];
            status_flag = 1;
            printf("<info> Session Established\n");
            break;
@@ -304,7 +323,11 @@ static void RCIVE_MSG_handler(uint8_t * r_data)
            }
 
         case 0x02:
-           printf("<info> Session Discarded/Management\n"); 
+           printf("<info> Session Discarded/Management\n");
+           if (r_data[1] == ANC_ID && r_data[3] == 0xAC && TAG_ID[r_data[4]] == r_data[2])
+           {
+              printf("<info> Session Management\n\n TAG_ID: %d, round_id: %d \n\n", TAG_ID[r_data[4]], r_data[4]);            
+           }           
            break;
 
         case 0x03:
@@ -386,20 +409,43 @@ void uart_event_handle(app_uart_evt_t * p_event)
 static void RCM_MSG_SEND(ble_nus_c_evt_t const * p_ble_nus_c_evt_RMS)
 {
         ret_code_t send_check;
-        uint8_t    round;
 
         round = Arrange_Round();
+        Handler1[p_ble_nus_c_evt_RMS->conn_handle] = round;
+        Handler2[round-1] = p_ble_nus_c_evt_RMS->conn_handle;
+        m_range_round[round] = 1;
         //printf("round: %d \n\n", round);
         //m_range_round[8];
-        uint8_t data_array[3] = {ANC_ID, 0x01, round};
-        printf("<info> Anc_id: %d, Status: %d, Arranged round: %d. \n\n"); 
+        uint8_t data_array[3] = {0x01, ANC_ID, round};
+        printf("<info> Anc_id: %d, Arranged round: %d. \n\n", ANC_ID, round); 
         static uint16_t index = 3;
-        m_range_round[round] = 1;
         printf("<info> Send RCM config message. \n\n");                
         send_check = ble_nus_c_string_send(&m_ble_nus_c[p_ble_nus_c_evt_RMS->conn_handle], data_array, index);
         APP_ERROR_CHECK(send_check);
-        //status_flag = 1;
         printf("<info> Finish RCM config message. \n\n");
+}
+
+static void Session_Management_SEND()
+{
+        ret_code_t send_check;	
+
+        ble_evt_t const * p_ble_evt;	
+        ble_gap_evt_t const * p_gap_evt = &p_ble_evt->evt.gap_evt;	
+        printf("<info> Session_Management_SEND\n\n");	
+        round = Arrange_Round();	
+        uint8_t used_round;	
+        used_round = Handler1[p_gap_evt->params.connected.peer_addr.addr_id_peer];	
+        TAG_ID[round-1] = TAG_ID[used_round-1];	
+        m_range_round[round] = m_range_round[used_round];	
+        Handler1[p_gap_evt->params.connected.peer_addr.addr_id_peer-1] = round;	
+        TAG_ID[used_round-1] = 0;	
+        m_range_round[used_round] = 0;	
+        uint8_t data_array[4] = {0x02,TAG_ID[round-1], ANC_ID, round};	
+        static uint16_t index = 4;	
+        printf("<info> Send Session_Management. \n\n");                	
+        send_check = ble_nus_c_string_send(&m_ble_nus_c[p_gap_evt->params.connected.peer_addr.addr_id_peer], data_array, index);	
+        APP_ERROR_CHECK(send_check);	
+        printf("<info> Finish Session_Management. \n\n");
 }
 
 /**@snippet [Handling events from the ble_nus_c module] */
@@ -429,6 +475,17 @@ static void ble_nus_c_evt_handler(ble_nus_c_t * p_ble_nus_c, ble_nus_c_evt_t con
                 break;
 
         case BLE_NUS_C_EVT_DISCONNECTED:
+                //Handler1[p_ble_nus_c_evt->conn_handle] = round;
+                //Handler2[round] = p_ble_nus_c_evt->conn_handle;
+                //TAG_ID[round] = 0;
+                //m_range_round[round] = 0;
+                //Handler1[p_ble_nus_c_evt->conn_handle] = 0;
+                //Handler2[round] = 0;
+
+                //if(Check_Round == 0)
+                //{
+                //    status_flag = 0;
+                //}
                  printf("<info> Conn_handle %d is disconnected\n", p_ble_nus_c_evt->conn_handle);
                  printf("<info> Disconnected.\n");
                 scan_start();
@@ -506,7 +563,8 @@ static void uart_init(void)
  */
 static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 {
-        uint32_t err_code;
+        //uint32_t err_code;
+        ret_code_t err_code;
 
         // For readability.
         ble_gap_evt_t const * p_gap_evt = &p_ble_evt->evt.gap_evt;
@@ -525,6 +583,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
                 err_code = ble_db_discovery_start(&m_db_disc[p_gap_evt->conn_handle], p_gap_evt->conn_handle);
                 APP_ERROR_CHECK(err_code);
 
+              
                 // Update LEDs status and check whether it is needed to look for more
                 // peripherals to connect to.
                 switch (p_gap_evt->conn_handle)
@@ -559,6 +618,18 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
                 printf("<info> Central link 0x%x disconnected (reason: 0x%x)\n",
                              p_gap_evt->conn_handle,
                              p_gap_evt->params.disconnected.reason);
+              
+                round = Handler1[p_gap_evt->conn_handle];
+                Handler2[round-1] = p_gap_evt->conn_handle;
+                TAG_ID[round-1] = 0;
+                m_range_round[round] = 0;
+                Handler1[p_gap_evt->conn_handle] = 0;
+                Handler2[round-1] = 0;
+
+                if(Check_Round == 0)
+                {
+                    status_flag = 0;
+                }
 
                 switch (p_gap_evt->conn_handle)
                 {
@@ -856,6 +927,12 @@ static void timer_event(void)
             else if (cnt == 7){
                 xTaskNotify(uwb_thread, (7<<0), eSetBits);
                 cnt = 0;
+                block_cnt++;
+                if (block_cnt % 41 == 0)
+                {
+                    Session_Management_SEND();
+                    block_cnt = 0;
+                }
             }
         //printf("TaskNotify: %d \n\n", cnt);
        }

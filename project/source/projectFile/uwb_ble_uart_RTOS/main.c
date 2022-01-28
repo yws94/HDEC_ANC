@@ -56,34 +56,34 @@
 
 #define APP_BLE_OBSERVER_PRIO               3                                       /**< Application's BLE observer priority. You shouldn't need to modify this value. */
 #define APP_BLE_CONN_CFG_TAG                1                                       /**< A tag identifying the SoftDevice BLE configuration. */
-#define UWB_ROUND_INTERVAL         APP_TIMER_TICKS(30)   //1 : 60ms, 0.06               /**< Battery level measurement interval (ticks). This value corresponds to 120 seconds. */
+#define UWB_ROUND_INTERVAL         APP_TIMER_TICKS(12)//APP_TIMER_TICKS(30)   //1 : 60ms, 0.06               /**< Battery level measurement interval (ticks). This value corresponds to 120 seconds. */
 
-#define MIN_CONN_INTERVAL               MSEC_TO_UNITS(500, UNIT_1_25_MS)        /**< Minimum acceptable connection interval (0.5 seconds).  */
-#define MAX_CONN_INTERVAL               MSEC_TO_UNITS(1000, UNIT_1_25_MS)       /**< Maximum acceptable connection interval (1 second). */
-#define SLAVE_LATENCY                   0                                       /**< Slave latency. */
-#define CONN_SUP_TIMEOUT                MSEC_TO_UNITS(4000, UNIT_10_MS)         /**< Connection supervisory timeout (4 seconds). */
+//#define MIN_CONN_INTERVAL               MSEC_TO_UNITS(500, UNIT_1_25_MS)        /**< Minimum acceptable connection interval (0.5 seconds).  */
+//#define MAX_CONN_INTERVAL               MSEC_TO_UNITS(1000, UNIT_1_25_MS)       /**< Maximum acceptable connection interval (1 second). */
+//#define SLAVE_LATENCY                   0                                       /**< Slave latency. */
+//#define CONN_SUP_TIMEOUT                MSEC_TO_UNITS(4000, UNIT_10_MS)         /**< Connection supervisory timeout (4 seconds). */
 
-#define FIRST_CONN_PARAMS_UPDATE_DELAY  APP_TIMER_TICKS(5000)                       /**< Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (5 seconds). */
-#define NEXT_CONN_PARAMS_UPDATE_DELAY   APP_TIMER_TICKS(30000)                      /**< Time between each call to sd_ble_gap_conn_param_update after the first call (30 seconds). */
-#define MAX_CONN_PARAMS_UPDATE_COUNT    3                                           /**< Number of attempts before giving up the connection parameter negotiation. */
+//#define FIRST_CONN_PARAMS_UPDATE_DELAY  APP_TIMER_TICKS(5000)                       /**< Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (5 seconds). */
+//#define NEXT_CONN_PARAMS_UPDATE_DELAY   APP_TIMER_TICKS(30000)                      /**< Time between each call to sd_ble_gap_conn_param_update after the first call (30 seconds). */
+//#define MAX_CONN_PARAMS_UPDATE_COUNT    3                                           /**< Number of attempts before giving up the connection parameter negotiation. */
 
-#define SEC_PARAM_BOND                      1                                       /**< Perform bonding. */
-#define SEC_PARAM_MITM                      0                                       /**< Man In The Middle protection not required. */
-#define SEC_PARAM_LESC                      0                                       /**< LE Secure Connections not enabled. */
-#define SEC_PARAM_KEYPRESS                  0                                       /**< Keypress notifications not enabled. */
-#define SEC_PARAM_IO_CAPABILITIES           BLE_GAP_IO_CAPS_NONE                    /**< No I/O capabilities. */
-#define SEC_PARAM_OOB                       0                                       /**< Out Of Band data not available. */
-#define SEC_PARAM_MIN_KEY_SIZE              7                                       /**< Minimum encryption key size. */
-#define SEC_PARAM_MAX_KEY_SIZE              16                                      /**< Maximum encryption key size. */
+//#define SEC_PARAM_BOND                      1                                       /**< Perform bonding. */
+//#define SEC_PARAM_MITM                      0                                       /**< Man In The Middle protection not required. */
+//#define SEC_PARAM_LESC                      0                                       /**< LE Secure Connections not enabled. */
+//#define SEC_PARAM_KEYPRESS                  0                                       /**< Keypress notifications not enabled. */
+//#define SEC_PARAM_IO_CAPABILITIES           BLE_GAP_IO_CAPS_NONE                    /**< No I/O capabilities. */
+//#define SEC_PARAM_OOB                       0                                       /**< Out Of Band data not available. */
+//#define SEC_PARAM_MIN_KEY_SIZE              7                                       /**< Minimum encryption key size. */
+//#define SEC_PARAM_MAX_KEY_SIZE              16                                      /**< Maximum encryption key size. */
 
 #define DEAD_BEEF                           0xDEADBEEF                              /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
 #define UART_TX_BUF_SIZE                    256                                         /**< UART TX buffer size. */
 #define UART_RX_BUF_SIZE                    256                                         /**< UART RX buffer size. */
 
-#define ADC_REF_VOLTAGE_IN_MILLIVOLTS      600                                     /**< Reference voltage (in milli volts) used by ADC while doing conversion. */
-#define ADC_PRE_SCALING_COMPENSATION       6                                       /**< The ADC is configured to use VDD with 1/3 prescaling as input. And hence the result of conversion is to be multiplied by 3 to get the actual value of the battery voltage.*/
-#define DIODE_FWD_VOLT_DROP_MILLIVOLTS     270                                     /**< Typical forward voltage drop of the diode . */
-#define ADC_RES_10BIT                      1024                                    /**< Maximum digital value for 10-bit ADC conversion. */
+//#define ADC_REF_VOLTAGE_IN_MILLIVOLTS      600                                     /**< Reference voltage (in milli volts) used by ADC while doing conversion. */
+//#define ADC_PRE_SCALING_COMPENSATION       6                                       /**< The ADC is configured to use VDD with 1/3 prescaling as input. And hence the result of conversion is to be multiplied by 3 to get the actual value of the battery voltage.*/
+//#define DIODE_FWD_VOLT_DROP_MILLIVOLTS     270                                     /**< Typical forward voltage drop of the diode . */
+//#define ADC_RES_10BIT                      1024                                    /**< Maximum digital value for 10-bit ADC conversion. */
 #define OSTIMER_WAIT_FOR_QUEUE             10                                      /**< Number of ticks to wait for the timer queue to be ready */
 
 #define RNG_DELAY_MS 30
@@ -98,12 +98,15 @@
 #define RX_BUF_LEN 24
 #define POLL_RX_TO_RESP_TX_DLY_UUS 900
 #define RESP_TX_TO_FINAL_RX_DLY_UUS 500
-#define FINAL_RX_TIMEOUT_UUS 220  // 300
+#define FINAL_RX_TIMEOUT_UUS 220  
 #define PRE_TIMEOUT 5
 #define ANC_ID 0xAA
-extern example_ptr example_pointer;
-extern int unit_test_main(void);
-extern void build_examples(void);
+#define Range_Check 1.5   // Safe_Dist 2m 
+#define TAG_NUM 8
+
+//extern example_ptr example_pointer;
+//extern int unit_test_main(void);
+//extern void build_examples(void);
 extern int ds_resp(void);
 extern int rcm_tx(void);
 
@@ -157,13 +160,19 @@ static uint16_t m_conn_handle         = BLE_CONN_HANDLE_INVALID;    /**< Handle 
 
 static TimerHandle_t uwb_timer;                               /**< Definition of battery timer. */
 
-static uint8_t m_range_round[] = {0,0,0,0,0,0,0,0};                                    /**< Range rounde data. */                                    
-static uint8_t status_flag;
-static uint8_t Handler1[7];
-static uint8_t Handler2[7];
-static uint8_t TAG_ID[7];
-static uint8_t    round;
-static uint8_t block_cnt;
+static uint8_t m_range_round[TAG_NUM];  /**< Range rounde data. >**/                                    
+static uint8_t status_flag;                           /**< Flag for Starting the Timer task to make Block. >**/    
+static uint8_t Handler1[TAG_NUM];                           /**< Handler1[conn_handle] = Round_ID >**/
+static uint8_t Handler2[TAG_NUM];                           /**< Handler2[Round_ID] = conn_handle >**/
+static uint8_t TAG_ID[TAG_NUM];                             /**< TAG_ID[Round_ID] = TAG_ID >**/
+static uint8_t round;                                 /**< Arranged round >**/
+static uint8_t block_cnt;                             /**< Count of the single block > **/
+static uint8_t Round_Max_ID;                          /**< Definition of the max of range at single block. For BLE >**/
+static double Dist_Max_ID;                            /**< Definition of the max of range. For BLE >**/
+static uint8_t Out_of_Range_ID;                       /**< Out-of-Range round id. For BLE >**/
+static uint8_t Round_Warning_ID;                      /**< Definition of the Warning of round id. For BLE >**/
+static uint8_t SDES_Flag;                             /**< Session Discard for Establish SEND Flag. For BLE & UWB >**/
+static uint8_t SDESA_Flag;                            /**< Session Discard for Establish SEND ACK Flag. For BLE & UWB >**/
 
 #if NRF_LOG_ENABLED
 static TaskHandle_t m_logger_thread;                                /**< Definition of Logger thread. */
@@ -184,10 +193,95 @@ void test_run_info(unsigned char *data)
 }
 
 
-void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
+//void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
+//{
+//        app_error_handler(DEAD_BEEF, line_num, p_file_name);
+//}
+
+
+/**@brief Function for Sending Alert message to peripheral BLE.
+ *
+ * @param[in]   Round_ID   
+ */
+static void Alert_MSG_SEND(uint8_t Round_ID)
 {
-        app_error_handler(DEAD_BEEF, line_num, p_file_name);
+        ret_code_t send_check;
+        uint8_t conn_handle;
+
+        conn_handle = Handler2[Round_ID-1];
+
+        printf("\n<info> Alert_MSG_SEND ");
+        uint8_t data_array[4] = {0x03, ANC_ID, TAG_ID[Round_ID], 1};
+        static uint16_t index = 4;             
+        send_check = ble_nus_c_string_send(&m_ble_nus_c[conn_handle], data_array, index);
+        APP_ERROR_CHECK(send_check);
+        printf("Finish Alert_MSG. \n\n");
 }
+
+/**@brief Function for Sending Session_Discard message to peripheral BLE.
+ *
+ * @param[in]   Round_ID   
+ */
+static void Session_Discard_SEND(uint8_t Round_ID)
+{
+        ret_code_t send_check;
+        uint8_t conn_handle;
+
+        printf("\n<info> Session_Discard_SEND ");
+        conn_handle = Handler2[Round_ID-1];
+        uint8_t data_array[4] = {0x02, TAG_ID[Round_ID-1], ANC_ID, 0};
+        
+        m_range_round[Round_ID] = 0;
+        Handler1[conn_handle] = 0;
+        Handler2[Round_ID-1] = 0;
+        TAG_ID[Round_ID-1] = 0; 
+
+        if (Check_Round()){
+            status_flag = 0;
+        } 
+
+        static uint16_t index = 4;               
+        send_check = ble_nus_c_string_send(&m_ble_nus_c[conn_handle], data_array, index);
+        APP_ERROR_CHECK(send_check);
+
+        //send_check = sd_ble_gap_disconnect(conn_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+        //APP_ERROR_CHECK(send_check);
+        printf("Finish Session_Discard. \n\n");
+}
+
+/**@brief Function for Sending Session Discard for Establish message to peripheral BLE.
+ *
+ * @param[in]   Round_ID   
+ *              conn_handle
+ */
+static void Session_Discard_for_Establish_SEND(uint8_t Round_ID, uint16_t conn_handle)
+{
+        ret_code_t send_check;
+        uint16_t used_conn_handle;
+
+        printf("\n<info> Session_Discard_for_Establish_SEND ");
+        used_conn_handle = Handler2[Round_ID-1];
+        uint8_t data_array[4] = {0x02, TAG_ID[Round_ID-1], ANC_ID, 0};      
+
+        static uint16_t index = 4;                
+        send_check = ble_nus_c_string_send(&m_ble_nus_c[used_conn_handle], data_array, index);
+        APP_ERROR_CHECK(send_check);
+
+        Round_ID = Handler1[used_conn_handle];
+
+        //send_check = sd_ble_gap_disconnect(used_conn_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+        //APP_ERROR_CHECK(send_check);
+
+        Handler2[conn_handle] = conn_handle;
+
+        uint8_t data_array1[3] = {0x01, ANC_ID, Round_ID};
+        index = 3;
+        send_check = ble_nus_c_string_send(&m_ble_nus_c[conn_handle], data_array1, index);
+        APP_ERROR_CHECK(send_check);
+
+        printf("Finish Session_Discard_for_Establish_SEND. \n\n");
+}
+
 
 
 /**@brief Function to start scanning.
@@ -201,6 +295,7 @@ static void scan_start(void)
 
         err_code = bsp_indication_set(BSP_INDICATE_SCANNING);
         APP_ERROR_CHECK(err_code);
+
 }
 
 /**@brief Function for handling Scaning events.
@@ -224,14 +319,14 @@ static void scan_evt_handler(scan_evt_t const * p_scan_evt)
                         p_scan_evt->params.connected.p_connected;
                 // Scan is automatically stopped by the connection.
                
-                printf("<info> Connecting to target 0x%02x%02x%02x%02x%02x%02x\n",
-                             p_connected->peer_addr.addr[0],
-                             p_connected->peer_addr.addr[1],
-                             p_connected->peer_addr.addr[2],
-                             p_connected->peer_addr.addr[3],
-                             p_connected->peer_addr.addr[4],
-                             p_connected->peer_addr.addr[5]
-                             );
+                //printf("<info> Connecting to target 0x%02x%02x%02x%02x%02x%02x\n",
+                //             p_connected->peer_addr.addr[0],
+                //             p_connected->peer_addr.addr[1],
+                //             p_connected->peer_addr.addr[2],
+                //             p_connected->peer_addr.addr[3],
+                //             p_connected->peer_addr.addr[4],
+                //             p_connected->peer_addr.addr[5]
+                //             );
               
                 //test_run_info(p_connected->peer_addr);
         } break;
@@ -240,7 +335,8 @@ static void scan_evt_handler(scan_evt_t const * p_scan_evt)
         {
                 printf("Scan timed out.");
                 scan_start();
-        } break;
+        }       break;
+
         default:
                 break;
         }
@@ -267,11 +363,16 @@ static void scan_init(void)
         APP_ERROR_CHECK(err_code);
 }
 
+/**@brief Function for Arranging the Round_ID for peripheral BLE.
+ *  
+ *    @param[out]   Empty_Round[0]   
+ */
+
 int Arrange_Round(void){
     uint8_t cnt = 0;
-    uint8_t Empty_Round[8]; 
+    uint8_t Empty_Round[TAG_NUM]; 
 
-    for (int i=0;i<4;i++)
+    for (int i=0;i<TAG_NUM/2;i++)
     {
         if(m_range_round[2*i+1] == 0)
         {
@@ -280,7 +381,7 @@ int Arrange_Round(void){
         } 
     }
 
-    for(int i=1;i<4;i++)
+    for(int i=1;i<TAG_NUM/2;i++)
     {
         if (m_range_round[2*i] == 0)
         {
@@ -292,49 +393,66 @@ int Arrange_Round(void){
     return Empty_Round[0];
 }
 
+/**@brief Function for Checking the Empty round after BLE connection disable.
+ *  
+ *    @param[out]   0   - No empty round
+ *                  1   - All round is empty
+ */
 int Check_Round(void)
 {
     uint8_t cnt = 0;
 
-    for(int i=1;i<8;i++)
+    for(int i=1;i<TAG_NUM;i++)
     {
         if(m_range_round[i] == 1)
         {
-            return 1;
+            return 0;
         }
     }
-    return 0;   
+    return 1;   
 }
 
-static void RCIVE_MSG_handler(uint8_t * r_data)
+/**@brief Message handler for Received message from BLE peirpheral.
+ *  
+ *      Message format  1. ACK session [0x01, TAG_ID, 0xAC, Round_ID]
+ *                      2. ACK Update  [0x02, ANC_ID, TAG_ID, 0xAC, Round_ID]                                         
+ */
+static void RECIVE_MSG_handler(uint8_t * r_data)
 {
       switch(r_data[0])
       {
-        case 0x01: 
-           if (r_data[2] == 0xAC){
-           TAG_ID[r_data[3]-1] = r_data[1];
-           status_flag = 1;
-           printf("<info> Session Established\n");
+        case 0x01:        
+           if (r_data[2] == 0xAC)
+           {
+                 TAG_ID[r_data[3]-1] = r_data[1];
+                 status_flag = 1;
+                 if (SDES_Flag == 1)
+                 {
+                    SDESA_Flag = 1;
+                 }
+                 else
+                 {
+                    SDESA_Flag = 0;
+                 }
+                 printf("<info> Session Established \n");
+           }
+           else
+           {
+                 printf("%d", r_data[2]);
+                 printf("<info> ACK Fail\n");
+           }
            break;
-           }
-           else{
-           printf("%d", r_data[2]);
-           printf("<info> ACK Fail\n");
-           }
 
         case 0x02:
-           printf("<info> Session Discarded/Management\n");
+           printf("<info> ACK Update \n");
            if (r_data[1] == ANC_ID && r_data[3] == 0xAC && TAG_ID[r_data[4]] == r_data[2])
            {
-              printf("<info> Session Management\n\n TAG_ID: %d, round_id: %d \n\n", TAG_ID[r_data[4]], r_data[4]);            
+              printf("<info> Session Management\n TAG_ID: %d, round_id: %d \n\n", TAG_ID[r_data[4]], r_data[4]);            
            }           
            break;
 
-        case 0x03:
-           printf("<info> RCM data\n");   
-           break;
         default:
-           printf("<info> Wrong way. \n\n"); 
+           printf("<info> RECIVE_MSG_handler ERORR. \n\n"); 
       }
 }
 
@@ -347,7 +465,7 @@ static void ble_nus_chars_received_uart_print(uint8_t * p_data, uint16_t data_le
         printf("<info> Receiving data.");
         NRF_LOG_HEXDUMP_DEBUG(p_data, data_len);
         // Receive ACK MSG from Tag and checking the status
-        RCIVE_MSG_handler(p_data);
+        RECIVE_MSG_handler(p_data);
 }
 
 
@@ -406,7 +524,12 @@ void uart_event_handle(app_uart_evt_t * p_event)
                 break;
         }
 }
-static void RCM_MSG_SEND(ble_nus_c_evt_t const * p_ble_nus_c_evt_RMS)
+
+/**@brief Function for Session_Establish
+ *       
+  *      Message format  Session_Establish [0x01, ANC_ID, Round_ID]          
+ */
+static void Session_Establish_SEND(ble_nus_c_evt_t const * p_ble_nus_c_evt_RMS)
 {
         ret_code_t send_check;
 
@@ -414,116 +537,98 @@ static void RCM_MSG_SEND(ble_nus_c_evt_t const * p_ble_nus_c_evt_RMS)
         Handler1[p_ble_nus_c_evt_RMS->conn_handle] = round;
         Handler2[round-1] = p_ble_nus_c_evt_RMS->conn_handle;
         m_range_round[round] = 1;
-        //printf("round: %d \n\n", round);
-        //m_range_round[8];
         uint8_t data_array[3] = {0x01, ANC_ID, round};
-        printf("<info> Anc_id: %d, Arranged round: %d. \n\n", ANC_ID, round); 
-        static uint16_t index = 3;
-        printf("<info> Send RCM config message. \n\n");                
+        printf("\n<info> Anc_id: %d, Arranged round: %d. \n", ANC_ID, round); 
+        static uint16_t index = 3;         
         send_check = ble_nus_c_string_send(&m_ble_nus_c[p_ble_nus_c_evt_RMS->conn_handle], data_array, index);
         APP_ERROR_CHECK(send_check);
-        printf("<info> Finish RCM config message. \n\n");
-}
-
-static void Session_Management_SEND()
-{
-        ret_code_t send_check;	
-
-        ble_evt_t const * p_ble_evt;	
-        ble_gap_evt_t const * p_gap_evt = &p_ble_evt->evt.gap_evt;	
-        printf("<info> Session_Management_SEND\n\n");	
-        round = Arrange_Round();	
-        uint8_t used_round;	
-        used_round = Handler1[p_gap_evt->params.connected.peer_addr.addr_id_peer];	
-        TAG_ID[round-1] = TAG_ID[used_round-1];	
-        m_range_round[round] = m_range_round[used_round];	
-        Handler1[p_gap_evt->params.connected.peer_addr.addr_id_peer-1] = round;	
-        TAG_ID[used_round-1] = 0;	
-        m_range_round[used_round] = 0;	
-        uint8_t data_array[4] = {0x02,TAG_ID[round-1], ANC_ID, round};	
-        static uint16_t index = 4;	
-        printf("<info> Send Session_Management. \n\n");                	
-        send_check = ble_nus_c_string_send(&m_ble_nus_c[p_gap_evt->params.connected.peer_addr.addr_id_peer], data_array, index);	
-        APP_ERROR_CHECK(send_check);	
-        printf("<info> Finish Session_Management. \n\n");
+        //printf("<info> Finish RCM config message. \n\n");
 }
 
 /**@snippet [Handling events from the ble_nus_c module] */
 static void ble_nus_c_evt_handler(ble_nus_c_t * p_ble_nus_c, ble_nus_c_evt_t const * p_ble_nus_c_evt)
 {
         ret_code_t err_code;
+        uint16_t conn_handle;
+        uint8_t Round_ID;
+
         switch (p_ble_nus_c_evt->evt_type)
         {
-        case BLE_NUS_C_EVT_DISCOVERY_COMPLETE:
-               printf("<info> NUS Service discovered on conn_handle 0x%x\n",
-                             p_ble_nus_c_evt->conn_handle);
+          case BLE_NUS_C_EVT_DISCOVERY_COMPLETE:
+                  //printf("<info> NUS Service discovered on conn_handle 0x%x\n", p_ble_nus_c_evt->conn_handle);
+                  err_code = ble_nus_c_handles_assign(p_ble_nus_c, p_ble_nus_c_evt->conn_handle, &p_ble_nus_c_evt->handles);
+                  APP_ERROR_CHECK(err_code);
 
-                err_code = ble_nus_c_handles_assign(p_ble_nus_c, p_ble_nus_c_evt->conn_handle, &p_ble_nus_c_evt->handles);
-                APP_ERROR_CHECK(err_code);
+                  //printf("<info> Before enable the tx notification\n");
+                  NRF_LOG_HEXDUMP_DEBUG(p_ble_nus_c, sizeof(ble_nus_c_t));
+                  err_code = ble_nus_c_tx_notif_enable(p_ble_nus_c);
+                  APP_ERROR_CHECK(err_code);
 
-                printf("<info> Before enable the tx notification\n");
-                NRF_LOG_HEXDUMP_DEBUG(p_ble_nus_c, sizeof(ble_nus_c_t));
-                err_code = ble_nus_c_tx_notif_enable(p_ble_nus_c);
-                APP_ERROR_CHECK(err_code);
+                  //printf("\n<info> Connected to device with Nordic UART Service.\n");
+               
+                  // To Distinguish the Session Establish & Session Discard
+                  if(SDES_Flag != 1)
+                  {
+                      Session_Establish_SEND(p_ble_nus_c_evt);
+                  }
+                  else if(SDES_Flag ==1)
+                  {
+                      Session_Discard_for_Establish_SEND(Round_Max_ID, p_ble_nus_c_evt->conn_handle);                       
+                  }
+                  break;
 
-                printf("<info> Connected to device with Nordic UART Service.\n\n");
-                RCM_MSG_SEND(p_ble_nus_c_evt);
-                break;
+          case BLE_NUS_C_EVT_NUS_TX_EVT:
+                  ble_nus_chars_received_uart_print(p_ble_nus_c_evt->p_data, p_ble_nus_c_evt->data_len);
+                  break;
 
-        case BLE_NUS_C_EVT_NUS_TX_EVT:
-                ble_nus_chars_received_uart_print(p_ble_nus_c_evt->p_data, p_ble_nus_c_evt->data_len);
-                break;
+          case BLE_NUS_C_EVT_DISCONNECTED:
+                  //Handler1[p_ble_nus_c_evt->conn_handle] = round;
+                  //Handler2[round] = p_ble_nus_c_evt->conn_handle;
+                  //TAG_ID[round] = 0;
+                  //m_range_round[round] = 0;
+                  //Handler1[p_ble_nus_c_evt->conn_handle] = 0;
+                  //Handler2[round] = 0;
 
-        case BLE_NUS_C_EVT_DISCONNECTED:
-                //Handler1[p_ble_nus_c_evt->conn_handle] = round;
-                //Handler2[round] = p_ble_nus_c_evt->conn_handle;
-                //TAG_ID[round] = 0;
-                //m_range_round[round] = 0;
-                //Handler1[p_ble_nus_c_evt->conn_handle] = 0;
-                //Handler2[round] = 0;
-
-                //if(Check_Round == 0)
-                //{
-                //    status_flag = 0;
-                //}
-                 printf("<info> Conn_handle %d is disconnected\n", p_ble_nus_c_evt->conn_handle);
-                 printf("<info> Disconnected.\n");
-                scan_start();
-                break;
+                  //if(Check_Round == 0)
+                  //{
+                  //    status_flag = 0;
+                  //}
+                  printf("<info> Conn_handle %d is disconnected", p_ble_nus_c_evt->conn_handle);
+                  printf("\n <info> Disconnected.\n");
+                  scan_start();
+                  break;
         }
 }
 
 /**@brief Function for handling events from the GATT library. */
 void gatt_evt_handler(nrf_ble_gatt_t * p_gatt, nrf_ble_gatt_evt_t const * p_evt)
 {
-        uint32_t data_length;
-        if ((m_conn_handle == p_evt->conn_handle) && (p_evt->evt_id == NRF_BLE_GATT_EVT_ATT_MTU_UPDATED))
-        {
-                m_ble_nus_max_data_len = p_evt->params.att_mtu_effective - OPCODE_LENGTH - HANDLE_LENGTH;
-                 printf("<info> Data len is set to 0x%X(%d)\n", m_ble_nus_max_data_len, m_ble_nus_max_data_len);
-        }
-        else if ((m_conn_handle == p_evt->conn_handle) && (p_evt->evt_id == NRF_BLE_GATT_EVT_DATA_LENGTH_UPDATED))
-        {
-                data_length = p_evt->params.att_mtu_effective - OPCODE_LENGTH - HANDLE_LENGTH - 4;
-                 printf("<info> gatt_event: Data len is set to 0x%X (%d)\n", data_length, data_length);
-                m_ble_nus_max_data_len = data_length;
-        }
-         printf("<info> ATT MTU exchange completed. central 0x%x peripheral 0x%x\n",
-                      p_gatt->att_mtu_desired_central,
-                      p_gatt->att_mtu_desired_periph);
+    uint32_t data_length;
+    if ((m_conn_handle == p_evt->conn_handle) && (p_evt->evt_id == NRF_BLE_GATT_EVT_ATT_MTU_UPDATED))
+    {
+        m_ble_nus_max_data_len = p_evt->params.att_mtu_effective - OPCODE_LENGTH - HANDLE_LENGTH;
+        printf("<info> Data len is set to 0x%X(%d)\n", m_ble_nus_max_data_len, m_ble_nus_max_data_len);
+    }
+    else if ((m_conn_handle == p_evt->conn_handle) && (p_evt->evt_id == NRF_BLE_GATT_EVT_DATA_LENGTH_UPDATED))
+    {
+        data_length = p_evt->params.att_mtu_effective - OPCODE_LENGTH - HANDLE_LENGTH - 4;
+        printf("<info> gatt_event: Data len is set to 0x%X (%d)\n", data_length, data_length);
+        m_ble_nus_max_data_len = data_length;
+    }
+    //printf("<info> ATT MTU exchange completed. central 0x%x peripheral 0x%x\n", p_gatt->att_mtu_desired_central, p_gatt->att_mtu_desired_periph);
 }
 
 /**@brief Function for initializing the GATT module. */
 static void gatt_init(void)
 {
-        ret_code_t err_code = nrf_ble_gatt_init(&m_gatt, gatt_evt_handler);
-        APP_ERROR_CHECK(err_code);
+    ret_code_t err_code = nrf_ble_gatt_init(&m_gatt, gatt_evt_handler);
+    APP_ERROR_CHECK(err_code);
 
-        err_code = nrf_ble_gatt_att_mtu_periph_set(&m_gatt, NRF_SDH_BLE_GATT_MAX_MTU_SIZE);
-        APP_ERROR_CHECK(err_code);
+    err_code = nrf_ble_gatt_att_mtu_periph_set(&m_gatt, NRF_SDH_BLE_GATT_MAX_MTU_SIZE);
+    APP_ERROR_CHECK(err_code);
 
-        err_code = nrf_ble_gatt_data_length_set(&m_gatt, BLE_CONN_HANDLE_INVALID, NRF_SDH_BLE_GAP_DATA_LENGTH);
-        APP_ERROR_CHECK(err_code);
+    err_code = nrf_ble_gatt_data_length_set(&m_gatt, BLE_CONN_HANDLE_INVALID, NRF_SDH_BLE_GAP_DATA_LENGTH);
+    APP_ERROR_CHECK(err_code);
 }
 
 /**@brief  Function for initializing the UART module.
@@ -571,9 +676,8 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 
         switch (p_ble_evt->header.evt_id)
         {
-        case BLE_GAP_EVT_CONNECTED:
-                 printf("<info> \n\n Connection 0x%x established, starting DB discovery.\n\n",
-                             p_gap_evt->conn_handle);
+            case BLE_GAP_EVT_CONNECTED:
+                printf("<info> Connection 0x%x established, starting DB discovery.\n", p_gap_evt->conn_handle);
 
                 APP_ERROR_CHECK_BOOL(p_gap_evt->conn_handle < NRF_SDH_BLE_CENTRAL_LINK_COUNT);
 
@@ -583,41 +687,27 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
                 err_code = ble_db_discovery_start(&m_db_disc[p_gap_evt->conn_handle], p_gap_evt->conn_handle);
                 APP_ERROR_CHECK(err_code);
 
-              
-                // Update LEDs status and check whether it is needed to look for more
-                // peripherals to connect to.
-                switch (p_gap_evt->conn_handle)
-                {
-                case 0:
-                        //bsp_board_led_on(CENTRAL_CONNECTED_1_LED);
-                        break;
-                case 1:
-                        //bsp_board_led_on(CENTRAL_CONNECTED_2_LED);
-                        break;
-                }
-
                 if (ble_conn_state_central_conn_count() == NRF_SDH_BLE_CENTRAL_LINK_COUNT)
-                {
-                      ;
-                        //bsp_board_led_off(CENTRAL_SCANNING_LED);
-                        //bsp_board_led_off(CENTRAL_CONNECTED_LED);
-
-                        //NRF_LOG_HEXDUMP_INFO(&m_traceBuffer, sizeof(m_traceBuffer));
+                {                      
+                      //uint16_t conn_handle;
+                      //uint8_t Round_ID;
+                      // Session Management
+                      //Round_Max_ID
+                      SDES_Flag = 1;
+                      //Session_Discard_for_Establish_SEND(Round_Max_ID, p_gap_evt->conn_handle);                                           
                 }
                 else
                 {
-                        // Resume scanning.
-                        err_code = bsp_indication_set(BSP_INDICATE_SCANNING);
-                        APP_ERROR_CHECK(err_code);
-                        scan_start();
+                      // Resume scanning.
+                      err_code = bsp_indication_set(BSP_INDICATE_SCANNING);
+                      APP_ERROR_CHECK(err_code);
+                      scan_start();
                 }
                 break;
 
-        case BLE_GAP_EVT_DISCONNECTED:
-        {
-                printf("<info> Central link 0x%x disconnected (reason: 0x%x)\n",
-                             p_gap_evt->conn_handle,
-                             p_gap_evt->params.disconnected.reason);
+            case BLE_GAP_EVT_DISCONNECTED:
+            {
+                printf("\n <info> Central link 0x%x disconnected (reason: 0x%x)\n", p_gap_evt->conn_handle, p_gap_evt->params.disconnected.reason);
               
                 round = Handler1[p_gap_evt->conn_handle];
                 Handler2[round-1] = p_gap_evt->conn_handle;
@@ -626,43 +716,42 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
                 Handler1[p_gap_evt->conn_handle] = 0;
                 Handler2[round-1] = 0;
 
-                if(Check_Round == 0)
+                //int i = Check_Round();
+                if(Check_Round())
                 {
                     status_flag = 0;
                 }
 
                 switch (p_gap_evt->conn_handle)
                 {
-                case 0:
+                    case 0:
                         bsp_board_led_off(CENTRAL_CONNECTED_1_LED);
                         break;
-                case 1:
+                    case 1:
                         bsp_board_led_off(CENTRAL_CONNECTED_2_LED);
                         break;
                 }
 
                 if (ble_conn_state_central_conn_count() == 0)
                 {
-                        // Turn off the LED that indicates the connection.
-                        //bsp_board_led_off(CENTRAL_CONNECTED_LED);
-                        err_code = bsp_indication_set(BSP_INDICATE_SCANNING);
-                        APP_ERROR_CHECK(err_code);
+                    // Turn off the LED that indicates the connection.
+                    //bsp_board_led_off(CENTRAL_CONNECTED_LED);
+                    err_code = bsp_indication_set(BSP_INDICATE_SCANNING);
+                    APP_ERROR_CHECK(err_code);
                 }
                 scan_start();
-        }
-        break;
+            } break;
 
-        case BLE_GAP_EVT_CONN_PARAM_UPDATE_REQUEST:
-        {
+            case BLE_GAP_EVT_CONN_PARAM_UPDATE_REQUEST:
+            {
                 // Accept parameters requested by peer.
-                err_code = sd_ble_gap_conn_param_update(p_gap_evt->conn_handle,
-                                                        &p_gap_evt->params.conn_param_update_request.conn_params);
+                err_code = sd_ble_gap_conn_param_update(p_gap_evt->conn_handle, &p_gap_evt->params.conn_param_update_request.conn_params);
                 APP_ERROR_CHECK(err_code);
-        } break;
+            } break;
 
-        case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
-        {
-                 printf("<info> PHY update request.\n");
+           case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
+            {
+                printf("<info> PHY update request.\n");
                 ble_gap_phys_t const phys =
                 {
                         .rx_phys = BLE_GAP_PHY_AUTO,
@@ -670,37 +759,35 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
                 };
                 err_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
                 APP_ERROR_CHECK(err_code);
-        } break;
+            } break;
 
-        case BLE_GAP_EVT_TIMEOUT:
-        {
+            case BLE_GAP_EVT_TIMEOUT:
+            {
                 // We have not specified a timeout for scanning, so only connection attemps can timeout.
                 if (p_gap_evt->params.timeout.src == BLE_GAP_TIMEOUT_SRC_CONN)
                 {
-                         printf("<info> Connection request timed out.\n");
+                    printf("<info> Connection request timed out.\n");
                 }
-        } break;
+            } break;
 
-        case BLE_GATTC_EVT_TIMEOUT:
+            case BLE_GATTC_EVT_TIMEOUT:
                 // Disconnect on GATT Client timeout event.
-                 printf("<info> GATT Client Timeout.\n");
-                err_code = sd_ble_gap_disconnect(p_ble_evt->evt.gattc_evt.conn_handle,
-                                                 BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+                printf("<info> GATT Client Timeout.\n");
+                err_code = sd_ble_gap_disconnect(p_ble_evt->evt.gattc_evt.conn_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
                 APP_ERROR_CHECK(err_code);
                 break;
 
-        case BLE_GATTS_EVT_TIMEOUT:
+            case BLE_GATTS_EVT_TIMEOUT:
                 // Disconnect on GATT Server timeout event.
-                 printf("<info> GATT Server Timeout.\n");
-                err_code = sd_ble_gap_disconnect(p_ble_evt->evt.gatts_evt.conn_handle,
-                                                 BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+                printf("<info> GATT Server Timeout.\n");
+                err_code = sd_ble_gap_disconnect(p_ble_evt->evt.gatts_evt.conn_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
                 APP_ERROR_CHECK(err_code);
                 break;
 
-        default:
+            default:
                 // No implementation needed.
                 break;
-        }
+        } // Switch p_ble_evt->header.evt_id
 }
 
 
@@ -714,8 +801,8 @@ static void nus_c_init(void)
 
         for (uint32_t i = 0; i < NRF_SDH_BLE_CENTRAL_LINK_COUNT; i++)
         {
-                err_code = ble_nus_c_init(&m_ble_nus_c[i], &init);
-                APP_ERROR_CHECK(err_code);
+            err_code = ble_nus_c_init(&m_ble_nus_c[i], &init);
+            APP_ERROR_CHECK(err_code);
         }
 }
 
@@ -746,8 +833,7 @@ static void ble_stack_init(void)
         err_code = sd_ble_cfg_set(BLE_GAP_CFG_ROLE_COUNT, &ble_cfg, &ram_start);
         if (err_code != NRF_SUCCESS)
         {
-                 printf("<Error> sd_ble_cfg_set() returned %s when attempting to set BLE_GAP_CFG_ROLE_COUNT.\n",
-                              nrf_strerror_get(err_code));
+             printf("<Error> sd_ble_cfg_set() returned %s when attempting to set BLE_GAP_CFG_ROLE_COUNT.\n", nrf_strerror_get(err_code));
         }
 
         // Enable BLE stack.
@@ -775,9 +861,7 @@ static void ble_stack_init(void)
  */
 static void db_disc_handler(ble_db_discovery_evt_t * p_evt)
 {
-        printf("<info> call to ble_nus_c_on_db_disc_evt for instance %d and link 0x%x!\n",
-                      p_evt->conn_handle,
-                      p_evt->conn_handle);
+        printf("<info> call to ble_nus_c_on_db_disc_evt for instance %d and link 0x%x!\n", p_evt->conn_handle, p_evt->conn_handle);
         ble_nus_c_on_db_disc_evt(&m_ble_nus_c[p_evt->conn_handle], p_evt);
 
 }
@@ -800,17 +884,15 @@ static void bsp_event_handler(bsp_event_t event)
 
         switch (event)
         {
-
-        case BSP_EVENT_DISCONNECT:
-                err_code = sd_ble_gap_disconnect(m_conn_handle,
-                                                 BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+            case BSP_EVENT_DISCONNECT:
+                err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
                 if (err_code != NRF_ERROR_INVALID_STATE)
                 {
-                        APP_ERROR_CHECK(err_code);
+                    APP_ERROR_CHECK(err_code);
                 }
                 break;
 
-        case BSP_EVENT_WHITELIST_OFF:
+            case BSP_EVENT_WHITELIST_OFF:
 //                if (m_conn_handle == BLE_CONN_HANDLE_INVALID)
 //                {
 //                        err_code = ble_advertising_restart_without_whitelist(&m_advertising);
@@ -821,7 +903,7 @@ static void bsp_event_handler(bsp_event_t event)
 //                }
                 break;
 
-        default:
+            default:
                 break;
         }
 }
@@ -927,15 +1009,15 @@ static void timer_event(void)
             else if (cnt == 7){
                 xTaskNotify(uwb_thread, (7<<0), eSetBits);
                 cnt = 0;
-                block_cnt++;
-                if (block_cnt % 41 == 0)
-                {
-                    Session_Management_SEND();
-                    block_cnt = 0;
-                }
+                //block_cnt++;
+                //if (block_cnt % 41 == 0)
+                //{
+
+                //    block_cnt = 0;
+                //}
             }
         //printf("TaskNotify: %d \n\n", cnt);
-       }
+   } // IF status_flag
    else
    {
     ;;
@@ -1039,7 +1121,12 @@ int main(void)
 
 int ds_resp(void)
 {
-    uint32_t ulNotifiedValue;
+    uint32_t ulNotifiedValue;                 /**<Notification from Timer. >**/  
+    double Dist_Max;                          /**< Storing the longest Dist in single block. >**/  
+    uint8_t Round_Max;                        /**< Storing the longest Round_ID in single block. >**/  
+    uint8_t OutofRange[TAG_NUM];              /**< Checking the Out-of-Range Round_ID. >**/ 
+    //uint8_t Safe_Check[7] = {0,0,0,0,0,0,0};  /**< Checking the Safe Range Round_ID. >**/ 
+
 
     port_set_dw_ic_spi_fastrate();
 
@@ -1080,11 +1167,12 @@ int ds_resp(void)
     /* Loop forever responding to ranging requests. */
     while (1)
     {
-
         if( xTaskNotifyWait( 0xFFFFFFFF, 0, &ulNotifiedValue, portMAX_DELAY) == pdTRUE){
             if( ulNotifiedValue == 0 )
             {
-                  rcm_tx();
+                  Round_Max = 0;
+                  Dist_Max = 0;
+                  rcm_tx();                  
             }
             else if ( m_range_round[ulNotifiedValue] == 1)
             {                 
@@ -1199,13 +1287,58 @@ int ds_resp(void)
 
                                         ///* Display computed distance on LCD. */
                                         //sprintf(dist_str, "@@@ DIST: %3.2f m @@@\n", distance);
-                                        printf("@@@ DIST %d: %3.2f m @@@ \n\n", ulNotifiedValue, distance);
+                                        printf("@@@ DIST %d: %3.2f m @@@ \n", ulNotifiedValue, distance);
                                         //test_run_info((unsigned char *)dist_str);
 
                                         /* as DS-TWR initiator is waiting for RNG_DELAY_MS before next poll transmission
                                          * we can add a delay here before RX is re-enabled again
                                          */
                                         //Sleep(RNG_DELAY_MS - 10);  //start couple of ms earlier
+
+                                        // Check the Out of Range Round.
+                                        if (distance > Range_Check)
+                                        {
+                                            // Safe_Check Algorithm
+                                            OutofRange[ulNotifiedValue]++; 
+                                            if (OutofRange[ulNotifiedValue] == 3)
+                                            {                                                
+                                                Out_of_Range_ID = ulNotifiedValue;
+                                                printf("@@ Out of Range TAG %d @@ \n", Out_of_Range_ID);
+                                                Session_Discard_SEND(Out_of_Range_ID);
+                                                OutofRange[ulNotifiedValue] = 0;
+                                            }
+                                        }
+                                        else if (distance <= Range_Check)
+                                        {
+                                            OutofRange[ulNotifiedValue] = 0;
+                                        }
+                                        
+                                        // Finding the largest Distance in Single Block.
+                                        //if (Round_Max_ID == ulNotifiedValue && SDES_Flag == 1 && SDESA_Flag == 1)
+                                        //{
+                                        //    if (distance > Dist_Max_ID)
+                                        //    {
+                                        //        // remove data about ble (LAST_ID)
+                                        //        Handler1[7] = 0;
+                                        //        Handler2[7-1] = 0;
+                                        //        TAG_ID[7-1] = 0;   
+                                        //        Session_Discard_SEND(7);                                           
+                                        //    }
+                                        //    else
+                                        //    {
+                                        //        Session_Discard_SEND(Round_Max_ID);       
+                                        //    }
+                                        //}
+
+                                        //if (distance > Dist_Max)
+                                        //{
+                                        //    // Check Max Dist Algorithm
+                                        //    Dist_Max = distance;
+                                        //    Round_Max = ulNotifiedValue;
+
+                                        //    Round_Max_ID = Round_Max;
+                                        //    Dist_Max_ID = Dist_Max;                                                                                     
+                                        //}
                                     }
                                 }
                                 else

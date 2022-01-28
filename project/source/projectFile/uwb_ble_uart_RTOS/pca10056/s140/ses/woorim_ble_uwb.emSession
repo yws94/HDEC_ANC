@@ -2,7 +2,6 @@
 <session>
  <Bookmarks/>
  <Breakpoints groups="Breakpoints" active_group="Breakpoints">
-  <BreakpointListItem trigger="" line="432" counter="0" hardwareBreakpoint="" isFunctionBreakpoint="false" action="" expression="" group="Breakpoints" type="Breakpoint" state="4" filename="../../../main.c" useHWbreakpoint="false"/>
   <Exceptions set="MemManage;UsageFault_Coprocessor;UsageFault_CheckingError;UsageFault_StateError;BusFault;ExceptionEntryReturnFault;HardFault"/>
  </Breakpoints>
  <ExecutionProfileWindow/>
@@ -73,28 +72,28 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="657" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../main.c" selected="1" top="630" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="15" y="1223" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../main.c" selected="1" top="1197" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="208" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../modified_components/softdevice/common/nrf_sdh_ble.c" selected="0" top="194" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="8" y="12510" useTextEdit="1" openedFrom="C:/Users/UnLab/Desktop/0118/project/source/projectFile/uwb_ble_uart_RTOS/main.c" useBinaryEdit="0" left="0" path="../config/sdk_config.h" selected="0" top="12481" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="13211" useTextEdit="1" openedFrom="C:/Users/UnLab/Desktop/0118/project/source/projectFile/uwb_ble_uart_RTOS/main.c" useBinaryEdit="0" left="0" path="../config/sdk_config.h" selected="0" top="13161" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="18" y="209" useTextEdit="1" openedFrom="C:/Users/UnLab/Desktop/0118/project/source/projectFile/modified_components/softdevice/common/nrf_sdh_ble.c" useBinaryEdit="0" left="0" path="../../../../../../modules/nrfx/mdk/nrf52840.h" selected="0" top="186" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="99" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/util/app_error_weak.c" selected="0" top="78" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="230" useTextEdit="1" openedFrom="C:/Users/UnLab/Desktop/0118/project/source/projectFile/uwb_ble_uart_RTOS/main.c" useBinaryEdit="0" left="0" path="../../../../../../integration/nrfx/legacy/nrf_drv_clock.c" selected="0" top="207" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="60" useTextEdit="1" openedFrom="C:/Users/UnLab/Desktop/0118/project/source/projectFile/uwb_ble_uart_RTOS/main.c" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/stack_guard/nrf_stack_guard.c" selected="0" top="37" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="203" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../modified_external/freertos/portable/CMSIS/nrf52/port_cmsis_systick.c" selected="0" top="182" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="252" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../modules/nrfx/hal/nrf_rtc.h" selected="0" top="231" codecName=""/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="252" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../modules/nrfx/hal/nrf_rtc.h" selected="0" top="231" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="46" useTextEdit="1" openedFrom="C:/Users/UnLab/Desktop/0118/project/source/projectFile/uwb_ble_uart_RTOS/main.c" useBinaryEdit="0" left="0" path="deca_spi.c" selected="0" top="1" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="52" useTextEdit="1" openedFrom="C:/Users/UnLab/Desktop/0118/project/source/projectFile/uwb_ble_uart_RTOS/main.c" useBinaryEdit="0" left="0" path="../../../../modified_components/softdevice/common/nrf_sdh_freertos.c" selected="0" top="30" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="30" y="94" useTextEdit="1" openedFrom="C:/Users/UnLab/Desktop/0118/project/source/projectFile/uwb_ble_uart_RTOS/main.c" useBinaryEdit="0" left="0" path="../../../../../../components/ble/nrf_ble_gatt/nrf_ble_gatt.c" selected="0" top="67" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="8" y="63" useTextEdit="1" openedFrom="C:/Users/UnLab/Desktop/0118/project/source/projectFile/uwb_ble_uart_RTOS/main.c" useBinaryEdit="0" left="0" path="../../../../modified_components/softdevice/s132/headers/ble_gatt.h" selected="0" top="40" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="127" y="128" useTextEdit="1" openedFrom="C:/Users/UnLab/Desktop/0118/project/components/ble/nrf_ble_gatt/nrf_ble_gatt.c" useBinaryEdit="0" left="0" path="../../../../../../components/ble/nrf_ble_gatt/nrf_ble_gatt.h" selected="0" top="105" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="2895" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../modified_external/freertos/source/tasks.c" selected="0" top="2873" codecName=""/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="2895" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../modified_external/freertos/source/tasks.c" selected="0" top="2873" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="39" y="128" useTextEdit="1" openedFrom="C:/Users/UnLab/Desktop/0118/project/source/projectFile/uwb_ble_uart_RTOS/main.c" useBinaryEdit="0" left="0" path="../../../../modified_components/softdevice/s132/headers/ble_gap.h" selected="0" top="106" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="571" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../modules/nrfx/hal/nrf_spim.h" selected="0" top="549" codecName=""/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="264" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../components/toolchain/cmsis/include/cmsis_gcc.h" selected="0" top="242" codecName=""/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="549" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../modules/nrfx/drivers/src/nrfx_spim.c" selected="0" top="527" codecName=""/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="571" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../modules/nrfx/hal/nrf_spim.h" selected="0" top="549" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="264" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../components/toolchain/cmsis/include/cmsis_gcc.h" selected="0" top="242" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="549" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../modules/nrfx/drivers/src/nrfx_spim.c" selected="0" top="527" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="34" y="123" useTextEdit="1" openedFrom="C:/Users/UnLab/Desktop/0118/project/source/projectFile/uwb_ble_uart_RTOS/main.c" useBinaryEdit="0" left="0" path="../../../../modified_components/ble/ble_services/ble_nus_c/ble_nus_c.h" selected="0" top="89" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="279" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../modified_external/freertos/portable/CMSIS/nrf52/port_cmsis.c" selected="0" top="257" codecName=""/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="279" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../modified_external/freertos/portable/CMSIS/nrf52/port_cmsis.c" selected="0" top="257" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="59" y="72" useTextEdit="1" openedFrom="C:/Users/UnLab/Desktop/0118/project/source/projectFile/uwb_ble_uart_RTOS/main.c" useBinaryEdit="0" left="0" path="../../../../modified_components/softdevice/s132/headers/ble_hci.h" selected="0" top="120" codecName="Default"/>
  </Files>
- <ARMCrossStudioWindow activeProject="woorim_ble_uwb" fileDialogDefaultFilter="*" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="/Users/woorim/Desktop/project/DW3000_API_C0_rev4p0 2/API/nRF52840-DK/Source/platform_nRF52840-DK" debugSearchPath="" autoConnectCapabilities="3711"/>
+ <ARMCrossStudioWindow activeProject="woorim_ble_uwb" fileDialogDefaultFilter="*" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="/Users/woorim/Desktop/project/DW3000_API_C0_rev4p0 2/API/nRF52840-DK/Source/platform_nRF52840-DK" debugSearchPath="" autoConnectCapabilities="3199"/>
 </session>

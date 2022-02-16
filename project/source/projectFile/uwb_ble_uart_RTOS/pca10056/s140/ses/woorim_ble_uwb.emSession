@@ -72,7 +72,7 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="15" y="1223" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../main.c" selected="1" top="1197" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="49" y="1384" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../main.c" selected="1" top="1366" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="208" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../modified_components/softdevice/common/nrf_sdh_ble.c" selected="0" top="194" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="13211" useTextEdit="1" openedFrom="C:/Users/UnLab/Desktop/0118/project/source/projectFile/uwb_ble_uart_RTOS/main.c" useBinaryEdit="0" left="0" path="../config/sdk_config.h" selected="0" top="13161" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="18" y="209" useTextEdit="1" openedFrom="C:/Users/UnLab/Desktop/0118/project/source/projectFile/modified_components/softdevice/common/nrf_sdh_ble.c" useBinaryEdit="0" left="0" path="../../../../../../modules/nrfx/mdk/nrf52840.h" selected="0" top="186" codecName="Default"/>

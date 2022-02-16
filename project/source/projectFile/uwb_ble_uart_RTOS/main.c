@@ -16,6 +16,7 @@
 #include "timers.h"
 #include "semphr.h"
 #include "fds.h"
+#include "queue.h"
 /*BLE Include*/
 #include "ble.h"
 #include "ble_hci.h"
@@ -56,7 +57,7 @@
 
 #define APP_BLE_OBSERVER_PRIO               3                                       /**< Application's BLE observer priority. You shouldn't need to modify this value. */
 #define APP_BLE_CONN_CFG_TAG                1                                       /**< A tag identifying the SoftDevice BLE configuration. */
-#define UWB_ROUND_INTERVAL         APP_TIMER_TICKS(12)//APP_TIMER_TICKS(30)   //1 : 60ms, 0.06               /**< Battery level measurement interval (ticks). This value corresponds to 120 seconds. */
+#define UWB_ROUND_INTERVAL         APP_TIMER_TICKS(15)//APP_TIMER_TICKS(30)   //1 : 60ms, 0.06               /**< Battery level measurement interval (ticks). This value corresponds to 120 seconds. */
 
 //#define MIN_CONN_INTERVAL               MSEC_TO_UNITS(500, UNIT_1_25_MS)        /**< Minimum acceptable connection interval (0.5 seconds).  */
 //#define MAX_CONN_INTERVAL               MSEC_TO_UNITS(1000, UNIT_1_25_MS)       /**< Maximum acceptable connection interval (1 second). */
@@ -101,7 +102,7 @@
 #define FINAL_RX_TIMEOUT_UUS 220  
 #define PRE_TIMEOUT 5
 #define ANC_ID 0xAA
-#define Range_Check 1.5   // Safe_Dist 2m 
+#define Range_Check 30   // Safe_Dist 2m 
 #define TAG_NUM 8
 
 //extern example_ptr example_pointer;
@@ -173,6 +174,19 @@ static uint8_t Out_of_Range_ID;                       /**< Out-of-Range round id
 static uint8_t Round_Warning_ID;                      /**< Definition of the Warning of round id. For BLE >**/
 static uint8_t SDES_Flag;                             /**< Session Discard for Establish SEND Flag. For BLE & UWB >**/
 static uint8_t SDESA_Flag;                            /**< Session Discard for Establish SEND ACK Flag. For BLE & UWB >**/
+
+static QueueHandle_t xQueue;
+
+typedef struct Task_Message
+{
+    uint8_t round;
+    uint8_t ble_evt;
+} T_Msg;
+
+#define QUEUE_LENGTH  10
+#define QUEUE_ITEM_SIZE sizeof( T_Msg )
+
+static TickType_t xLastWakeTime;
 
 #if NRF_LOG_ENABLED
 static TaskHandle_t m_logger_thread;                                /**< Definition of Logger thread. */
@@ -289,11 +303,11 @@ static void Session_Discard_for_Establish_SEND(uint8_t Round_ID, uint16_t conn_h
 static void scan_start(void)
 {
         ret_code_t err_code;
-
+       
         err_code = nrf_ble_scan_start(&m_scan);
         APP_ERROR_CHECK(err_code);
 
-        err_code = bsp_indication_set(BSP_INDICATE_SCANNING);
+        err_code = bsp_indication_set((BSP_INDICATE_SCANNING));        
         APP_ERROR_CHECK(err_code);
 
 }
@@ -331,11 +345,10 @@ static void scan_evt_handler(scan_evt_t const * p_scan_evt)
                 //test_run_info(p_connected->peer_addr);
         } break;
 
-        case NRF_BLE_SCAN_EVT_SCAN_TIMEOUT:
-        {
+        case NRF_BLE_SCAN_EVT_SCAN_TIMEOUT:        
                 printf("Scan timed out.");
                 scan_start();
-        }       break;
+                break;
 
         default:
                 break;
@@ -419,6 +432,9 @@ int Check_Round(void)
  */
 static void RECIVE_MSG_handler(uint8_t * r_data)
 {
+      T_Msg UWB_TO_BLE;
+      const TickType_t xTicksToWait = pdMS_TO_TICKS(1);
+
       switch(r_data[0])
       {
         case 0x01:        
@@ -433,6 +449,11 @@ static void RECIVE_MSG_handler(uint8_t * r_data)
                  else
                  {
                     SDESA_Flag = 0;
+                    UWB_TO_BLE.round = r_data[3];
+                    //UWB_TO_BLE.ble_evt = 0;
+
+                    xQueueSendToBack(xQueue, &UWB_TO_BLE, xTicksToWait);
+
                  }
                  printf("<info> Session Established \n");
            }
@@ -784,6 +805,10 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
                 APP_ERROR_CHECK(err_code);
                 break;
 
+            //case BLE_GAP_EVT_ADV_REPORT:
+            //    printf("BLE_GAP_EVT_ADV_REPORT\n\n");  
+            //    break;
+                 
             default:
                 // No implementation needed.
                 break;
@@ -978,7 +1003,7 @@ static void timer_event(void)
     if (status_flag == 1)
     {
             //xTaskNotify(uwb_thread, (1<<0), eSetBits);
-            if (cnt == 0){
+            if (cnt == 0){            
                 xTaskNotify(uwb_thread, (0<<0), eSetBits);
                 cnt++;
             }
@@ -1008,13 +1033,22 @@ static void timer_event(void)
             }
             else if (cnt == 7){
                 xTaskNotify(uwb_thread, (7<<0), eSetBits);
-                cnt = 0;
+                cnt++;
+                
                 //block_cnt++;
                 //if (block_cnt % 41 == 0)
                 //{
 
                 //    block_cnt = 0;
                 //}
+            }
+            else if (cnt > 7 & cnt != 15){
+                xTaskNotify(uwb_thread, (8<<0), eSetBits);
+                cnt++;
+            }
+            else if (cnt == 15)
+            {
+                cnt = 0;
             }
         //printf("TaskNotify: %d \n\n", cnt);
    } // IF status_flag
@@ -1035,10 +1069,10 @@ static void timers_init(void)
 
         // Create timers.
         uwb_timer = xTimerCreate("UWB",
-                                       UWB_ROUND_INTERVAL,
-                                       pdTRUE,
-                                       NULL,
-                                       timer_event);
+                                 UWB_ROUND_INTERVAL,
+                                 pdTRUE,
+                                 NULL,
+                                 timer_event);
         /* Error checking */
         if ( (NULL == uwb_timer))
         {
@@ -1096,17 +1130,19 @@ int main(void)
         nrf_drv_gpiote_in_event_disable(DW3000_IRQn_Pin);
         nrf_delay_ms(2);
  
-
         // UWB timer Start
         timers_init();
         uwb_timers_start();
+
+        nrf_gpio_cfg_output(NRF_GPIO_PIN_MAP(0,24));
         
+        xQueue = xQueueCreate(QUEUE_LENGTH, QUEUE_ITEM_SIZE);
+
         if (pdPASS != xTaskCreate(ds_resp, "UWB", 1024, NULL, 0, &uwb_thread))
         {
                 APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
         }
         
-
         // Create a FreeRTOS task for the BLE stack.
         nrf_sdh_freertos_init(scan_start, NULL);
 
@@ -1121,12 +1157,15 @@ int main(void)
 
 int ds_resp(void)
 {
+    const TickType_t  xTicksToWait = pdMS_TO_TICKS(1);
+
     uint32_t ulNotifiedValue;                 /**<Notification from Timer. >**/  
     double Dist_Max;                          /**< Storing the longest Dist in single block. >**/  
     uint8_t Round_Max;                        /**< Storing the longest Round_ID in single block. >**/  
     uint8_t OutofRange[TAG_NUM];              /**< Checking the Out-of-Range Round_ID. >**/ 
     //uint8_t Safe_Check[7] = {0,0,0,0,0,0,0};  /**< Checking the Safe Range Round_ID. >**/ 
-
+    uint8_t Range_Round[TAG_NUM];
+    T_Msg FROM_BLE;
 
     port_set_dw_ic_spi_fastrate();
 
@@ -1167,196 +1206,216 @@ int ds_resp(void)
     /* Loop forever responding to ranging requests. */
     while (1)
     {
-        if( xTaskNotifyWait( 0xFFFFFFFF, 0, &ulNotifiedValue, portMAX_DELAY) == pdTRUE){
+        if( xTaskNotifyWait( 0xFFFFFFFF, 0, &ulNotifiedValue, portMAX_DELAY) == pdTRUE)
+        {          
             if( ulNotifiedValue == 0 )
             {
+                  rcm_tx();                        
+                  if ( xQueueReceive(xQueue, &FROM_BLE, xTicksToWait) != pdPASS)
+                  {
+                      ;                      
+                  }
+                  else
+                  {
+                      Range_Round[FROM_BLE.round] = 1;
+                  }
                   Round_Max = 0;
-                  Dist_Max = 0;
-                  rcm_tx();                  
+                  Dist_Max = 0;            
             }
-            else if ( m_range_round[ulNotifiedValue] == 1)
-            {                 
-                        //printf("This is DS_RESP \n\n");    
-                        dwt_setpreambledetecttimeout(0);
-                        /* Clear reception timeout to start next ranging process. */
-                        dwt_setrxtimeout(10000);
+            else if( ulNotifiedValue != 0)
+            {
+                  if ( Range_Round[ulNotifiedValue] == 1 && ulNotifiedValue < TAG_NUM)
+                  {             
+                               nrf_gpio_pin_toggle(NRF_GPIO_PIN_MAP(0,24));  
+                              //printf("This is DS_RESP \n\n");    
+                              dwt_setpreambledetecttimeout(0);
+                              /* Clear reception timeout to start next ranging process. */
+                              dwt_setrxtimeout(10000);
 
-                        /* Activate reception immediately. */
-                        dwt_rxenable(DWT_START_RX_IMMEDIATE);
+                              /* Activate reception immediately. */
+                              dwt_rxenable(DWT_START_RX_IMMEDIATE);
 
-                        /* Poll for reception of a frame or error/timeout. See NOTE 8 below. */
-                        while (!((status_reg = dwt_read32bitreg(SYS_STATUS_ID)) & (SYS_STATUS_RXFCG_BIT_MASK | SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR)))
-                        { };
+                              /* Poll for reception of a frame or error/timeout. See NOTE 8 below. */
+                              while (!((status_reg = dwt_read32bitreg(SYS_STATUS_ID)) & (SYS_STATUS_RXFCG_BIT_MASK | SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR)))
+                              { };
         
-                        if (status_reg & SYS_STATUS_RXFCG_BIT_MASK)
-                        {
-                            uint32_t frame_len;
+                              if (status_reg & SYS_STATUS_RXFCG_BIT_MASK)
+                              {
+                                  uint32_t frame_len;
 
-                            /* Clear good RX frame event in the DW IC status register. */
-                            dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_RXFCG_BIT_MASK);
+                                  /* Clear good RX frame event in the DW IC status register. */
+                                  dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_RXFCG_BIT_MASK);
 
-                            /* A frame has been received, read it into the local buffer. */
-                            frame_len = dwt_read32bitreg(RX_FINFO_ID) & FRAME_LEN_MAX_EX;
-                            if (frame_len <= RX_BUF_LEN)
-                            {
-                                dwt_readrxdata(rx_buffer, frame_len, 0);
-                            }
+                                  /* A frame has been received, read it into the local buffer. */
+                                  frame_len = dwt_read32bitreg(RX_FINFO_ID) & FRAME_LEN_MAX_EX;
+                                  if (frame_len <= RX_BUF_LEN)
+                                  {
+                                      dwt_readrxdata(rx_buffer, frame_len, 0);
+                                  }
 
-                            /* Check that the frame is a poll sent by "DS TWR initiator" example.
-                             * As the sequence number field of the frame is not relevant, it is cleared to simplify the validation of the frame. */
-                            rx_buffer[ALL_MSG_SN_IDX] = 0;
-                            if (memcmp(rx_buffer, rx_poll_msg, ALL_MSG_COMMON_LEN) == 0)
-                            {
-                                uint32_t resp_tx_time;
-                                int ret;
+                                  /* Check that the frame is a poll sent by "DS TWR initiator" example.
+                                   * As the sequence number field of the frame is not relevant, it is cleared to simplify the validation of the frame. */
+                                  rx_buffer[ALL_MSG_SN_IDX] = 0;
+                                  if (memcmp(rx_buffer, rx_poll_msg, ALL_MSG_COMMON_LEN) == 0)
+                                  {
+                                      uint32_t resp_tx_time;
+                                      int ret;
 
-                                /* Retrieve poll reception timestamp. */
-                                poll_rx_ts = get_rx_timestamp_u64();
+                                      /* Retrieve poll reception timestamp. */
+                                      poll_rx_ts = get_rx_timestamp_u64();
 
-                                /* Set send time for response. See NOTE 9 below. */
-                                resp_tx_time = (poll_rx_ts + (POLL_RX_TO_RESP_TX_DLY_UUS * UUS_TO_DWT_TIME)) >> 8;
-                                dwt_setdelayedtrxtime(resp_tx_time);
+                                      /* Set send time for response. See NOTE 9 below. */
+                                      resp_tx_time = (poll_rx_ts + (POLL_RX_TO_RESP_TX_DLY_UUS * UUS_TO_DWT_TIME)) >> 8;
+                                      dwt_setdelayedtrxtime(resp_tx_time);
 
-                                /* Set expected delay and timeout for final message reception. See NOTE 4 and 5 below. */
-                                dwt_setrxaftertxdelay(RESP_TX_TO_FINAL_RX_DLY_UUS);
-                                dwt_setrxtimeout(FINAL_RX_TIMEOUT_UUS);
-                                /* Set preamble timeout for expected frames. See NOTE 6 below. */
-                                dwt_setpreambledetecttimeout(PRE_TIMEOUT);
+                                      /* Set expected delay and timeout for final message reception. See NOTE 4 and 5 below. */
+                                      dwt_setrxaftertxdelay(RESP_TX_TO_FINAL_RX_DLY_UUS);
+                                      dwt_setrxtimeout(FINAL_RX_TIMEOUT_UUS);
+                                      /* Set preamble timeout for expected frames. See NOTE 6 below. */
+                                      dwt_setpreambledetecttimeout(PRE_TIMEOUT);
 
-                                /* Write and send the response message. See NOTE 10 below.*/
-                                tx_resp_msg[ALL_MSG_SN_IDX] = frame_seq_nb;
-                                dwt_writetxdata(sizeof(tx_resp_msg), tx_resp_msg, 0); /* Zero offset in TX buffer. */
-                                dwt_writetxfctrl(sizeof(tx_resp_msg), 0, 1); /* Zero offset in TX buffer, ranging. */
-                                ret = dwt_starttx(DWT_START_TX_DELAYED | DWT_RESPONSE_EXPECTED);
+                                      /* Write and send the response message. See NOTE 10 below.*/
+                                      tx_resp_msg[ALL_MSG_SN_IDX] = frame_seq_nb;
+                                      dwt_writetxdata(sizeof(tx_resp_msg), tx_resp_msg, 0); /* Zero offset in TX buffer. */
+                                      dwt_writetxfctrl(sizeof(tx_resp_msg), 0, 1); /* Zero offset in TX buffer, ranging. */
+                                      ret = dwt_starttx(DWT_START_TX_DELAYED | DWT_RESPONSE_EXPECTED);
 
-                                /* If dwt_starttx() returns an error, abandon this ranging exchange and proceed to the next one. See NOTE 11 below. */
-                                if (ret == DWT_ERROR)
-                                {
-                                    continue;
-                                }
+                                      /* If dwt_starttx() returns an error, abandon this ranging exchange and proceed to the next one. See NOTE 11 below. */
+                                      if (ret == DWT_ERROR)
+                                      {
+                                          continue;
+                                      }
 
-                                /* Poll for reception of expected "final" frame or error/timeout. See NOTE 8 below. */
-                                while (!((status_reg = dwt_read32bitreg(SYS_STATUS_ID)) & (SYS_STATUS_RXFCG_BIT_MASK | SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR)))
-                                { };
+                                      /* Poll for reception of expected "final" frame or error/timeout. See NOTE 8 below. */
+                                      while (!((status_reg = dwt_read32bitreg(SYS_STATUS_ID)) & (SYS_STATUS_RXFCG_BIT_MASK | SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR)))
+                                      { };
 
-                                /* Increment frame sequence number after transmission of the response message (modulo 256). */
-                                frame_seq_nb++;
+                                      /* Increment frame sequence number after transmission of the response message (modulo 256). */
+                                      frame_seq_nb++;
 
-                                if (status_reg & SYS_STATUS_RXFCG_BIT_MASK)
-                                {
-                                    /* Clear good RX frame event and TX frame sent in the DW IC status register. */
-                                    dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_RXFCG_BIT_MASK | SYS_STATUS_TXFRS_BIT_MASK);
+                                      if (status_reg & SYS_STATUS_RXFCG_BIT_MASK)
+                                      {
+                                          /* Clear good RX frame event and TX frame sent in the DW IC status register. */
+                                          dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_RXFCG_BIT_MASK | SYS_STATUS_TXFRS_BIT_MASK);
 
-                                    /* A frame has been received, read it into the local buffer. */
-                                    frame_len = dwt_read32bitreg(RX_FINFO_ID) & FRAME_LEN_MAX_EX;
-                                    if (frame_len <= RX_BUF_LEN)
-                                    {
-                                        dwt_readrxdata(rx_buffer, frame_len, 0);
-                                    }
+                                          /* A frame has been received, read it into the local buffer. */
+                                          frame_len = dwt_read32bitreg(RX_FINFO_ID) & FRAME_LEN_MAX_EX;
+                                          if (frame_len <= RX_BUF_LEN)
+                                          {
+                                              dwt_readrxdata(rx_buffer, frame_len, 0);
+                                          }
 
-                                    /* Check that the frame is a final message sent by "DS TWR initiator" example.
-                                     * As the sequence number field of the frame is not used in this example, it can be zeroed to ease the validation of the frame. */
-                                    rx_buffer[ALL_MSG_SN_IDX] = 0;
-                                    if (memcmp(rx_buffer, rx_final_msg, ALL_MSG_COMMON_LEN) == 0)
-                                    {
-                                        uint32_t poll_tx_ts, resp_rx_ts, final_tx_ts;
-                                        uint32_t poll_rx_ts_32, resp_tx_ts_32, final_rx_ts_32;
-                                        double Ra, Rb, Da, Db;
-                                        int64_t tof_dtu;
+                                          /* Check that the frame is a final message sent by "DS TWR initiator" example.
+                                           * As the sequence number field of the frame is not used in this example, it can be zeroed to ease the validation of the frame. */
+                                          rx_buffer[ALL_MSG_SN_IDX] = 0;
+                                          if (memcmp(rx_buffer, rx_final_msg, ALL_MSG_COMMON_LEN) == 0)
+                                          {
+                                              uint32_t poll_tx_ts, resp_rx_ts, final_tx_ts;
+                                              uint32_t poll_rx_ts_32, resp_tx_ts_32, final_rx_ts_32;
+                                              double Ra, Rb, Da, Db;
+                                              int64_t tof_dtu;
 
-                                        /* Retrieve response transmission and final reception timestamps. */
-                                        resp_tx_ts = get_tx_timestamp_u64();
-                                        final_rx_ts = get_rx_timestamp_u64();
+                                              /* Retrieve response transmission and final reception timestamps. */
+                                              resp_tx_ts = get_tx_timestamp_u64();
+                                              final_rx_ts = get_rx_timestamp_u64();
 
-                                        /* Get timestamps embedded in the final message. */
-                                        final_msg_get_ts(&rx_buffer[FINAL_MSG_POLL_TX_TS_IDX], &poll_tx_ts);
-                                        final_msg_get_ts(&rx_buffer[FINAL_MSG_RESP_RX_TS_IDX], &resp_rx_ts);
-                                        final_msg_get_ts(&rx_buffer[FINAL_MSG_FINAL_TX_TS_IDX], &final_tx_ts);
-                                        /* Compute time of flight. 32-bit subtractions give correct answers even if clock has wrapped. See NOTE 12 below. */
-                                        poll_rx_ts_32 = (uint32_t)poll_rx_ts;
-                                        resp_tx_ts_32 = (uint32_t)resp_tx_ts;
-                                        final_rx_ts_32 = (uint32_t)final_rx_ts;
-                                        Ra = (double)(resp_rx_ts - poll_tx_ts);
-                                        Rb = (double)(final_rx_ts_32 - resp_tx_ts_32);
-                                        Da = (double)(final_tx_ts - resp_rx_ts);
-                                        Db = (double)(resp_tx_ts_32 - poll_rx_ts_32);
-                                        tof_dtu = (int64_t)((Ra * Rb - Da * Db) / (Ra + Rb + Da + Db));
+                                              /* Get timestamps embedded in the final message. */
+                                              final_msg_get_ts(&rx_buffer[FINAL_MSG_POLL_TX_TS_IDX], &poll_tx_ts);
+                                              final_msg_get_ts(&rx_buffer[FINAL_MSG_RESP_RX_TS_IDX], &resp_rx_ts);
+                                              final_msg_get_ts(&rx_buffer[FINAL_MSG_FINAL_TX_TS_IDX], &final_tx_ts);
+                                              /* Compute time of flight. 32-bit subtractions give correct answers even if clock has wrapped. See NOTE 12 below. */
+                                              poll_rx_ts_32 = (uint32_t)poll_rx_ts;
+                                              resp_tx_ts_32 = (uint32_t)resp_tx_ts;
+                                              final_rx_ts_32 = (uint32_t)final_rx_ts;
+                                              Ra = (double)(resp_rx_ts - poll_tx_ts);
+                                              Rb = (double)(final_rx_ts_32 - resp_tx_ts_32);
+                                              Da = (double)(final_tx_ts - resp_rx_ts);
+                                              Db = (double)(resp_tx_ts_32 - poll_rx_ts_32);
+                                              tof_dtu = (int64_t)((Ra * Rb - Da * Db) / (Ra + Rb + Da + Db));
 
-                                        tof = tof_dtu * DWT_TIME_UNITS;
-                                        distance = tof * SPEED_OF_LIGHT;
+                                              tof = tof_dtu * DWT_TIME_UNITS;
+                                              distance = tof * SPEED_OF_LIGHT;
 
-                                        ///* Display computed distance on LCD. */
-                                        //sprintf(dist_str, "@@@ DIST: %3.2f m @@@\n", distance);
-                                        printf("@@@ DIST %d: %3.2f m @@@ \n", ulNotifiedValue, distance);
-                                        //test_run_info((unsigned char *)dist_str);
+                                              ///* Display computed distance on LCD. */
+                                              //sprintf(dist_str, "@@@ DIST: %3.2f m @@@\n", distance);
+                                              printf("@@@ DIST %d: %3.2f m @@@ \n", ulNotifiedValue, distance);
+                                              //test_run_info((unsigned char *)dist_str);
 
-                                        /* as DS-TWR initiator is waiting for RNG_DELAY_MS before next poll transmission
-                                         * we can add a delay here before RX is re-enabled again
-                                         */
-                                        //Sleep(RNG_DELAY_MS - 10);  //start couple of ms earlier
+                                              /* as DS-TWR initiator is waiting for RNG_DELAY_MS before next poll transmission
+                                               * we can add a delay here before RX is re-enabled again
+                                               */
+                                              //Sleep(RNG_DELAY_MS - 10);  //start couple of ms earlier
 
-                                        // Check the Out of Range Round.
-                                        if (distance > Range_Check)
-                                        {
-                                            // Safe_Check Algorithm
-                                            OutofRange[ulNotifiedValue]++; 
-                                            if (OutofRange[ulNotifiedValue] == 3)
-                                            {                                                
-                                                Out_of_Range_ID = ulNotifiedValue;
-                                                printf("@@ Out of Range TAG %d @@ \n", Out_of_Range_ID);
-                                                Session_Discard_SEND(Out_of_Range_ID);
-                                                OutofRange[ulNotifiedValue] = 0;
-                                            }
-                                        }
-                                        else if (distance <= Range_Check)
-                                        {
-                                            OutofRange[ulNotifiedValue] = 0;
-                                        }
+                                              // Check the Out of Range Round.
+                                              if (distance > Range_Check)
+                                              {
+                                                  // Safe_Check Algorithm
+                                                  OutofRange[ulNotifiedValue]++; 
+                                                  if (OutofRange[ulNotifiedValue] == 3)
+                                                  {                                                
+                                                      Out_of_Range_ID = ulNotifiedValue;
+                                                      printf("@@ Out of Range TAG %d @@ \n", Out_of_Range_ID);
+                                                      Session_Discard_SEND(Out_of_Range_ID);
+                                                      OutofRange[ulNotifiedValue] = 0;
+                                                  }
+                                              }
+                                              else if (distance <= Range_Check)
+                                              {
+                                                  OutofRange[ulNotifiedValue] = 0;
+                                              }
                                         
-                                        // Finding the largest Distance in Single Block.
-                                        //if (Round_Max_ID == ulNotifiedValue && SDES_Flag == 1 && SDESA_Flag == 1)
-                                        //{
-                                        //    if (distance > Dist_Max_ID)
-                                        //    {
-                                        //        // remove data about ble (LAST_ID)
-                                        //        Handler1[7] = 0;
-                                        //        Handler2[7-1] = 0;
-                                        //        TAG_ID[7-1] = 0;   
-                                        //        Session_Discard_SEND(7);                                           
-                                        //    }
-                                        //    else
-                                        //    {
-                                        //        Session_Discard_SEND(Round_Max_ID);       
-                                        //    }
-                                        //}
+                                              // Finding the largest Distance in Single Block.
+                                              //if (Round_Max_ID == ulNotifiedValue && SDES_Flag == 1 && SDESA_Flag == 1)
+                                              //{
+                                              //    if (distance > Dist_Max_ID)
+                                              //    {
+                                              //        // remove data about ble (LAST_ID)
+                                              //        Handler1[7] = 0;
+                                              //        Handler2[7-1] = 0;
+                                              //        TAG_ID[7-1] = 0;   
+                                              //        Session_Discard_SEND(7);                                           
+                                              //    }
+                                              //    else
+                                              //    {
+                                              //        Session_Discard_SEND(Round_Max_ID);       
+                                              //    }
+                                              //}
 
-                                        //if (distance > Dist_Max)
-                                        //{
-                                        //    // Check Max Dist Algorithm
-                                        //    Dist_Max = distance;
-                                        //    Round_Max = ulNotifiedValue;
+                                              //if (distance > Dist_Max)
+                                              //{
+                                              //    // Check Max Dist Algorithm
+                                              //    Dist_Max = distance;
+                                              //    Round_Max = ulNotifiedValue;
 
-                                        //    Round_Max_ID = Round_Max;
-                                        //    Dist_Max_ID = Dist_Max;                                                                                     
-                                        //}
-                                    }
-                                }
-                                else
-                                {
-                                    /* Clear RX error/timeout events in the DW IC status register. */
-                                    dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            /* Clear RX error/timeout events in the DW IC status register. */
-                            dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR);
-                        }
-                 }//if value check
-              	
+                                              //    Round_Max_ID = Round_Max;
+                                              //    Dist_Max_ID = Dist_Max;                                                                                     
+                                              //}
+                                          }
+                                      }
+                                      else
+                                      {
+                                          /* Clear RX error/timeout events in the DW IC status register. */
+                                          dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR);
+                                      }
+                                  }
+                              }
+                              else
+                              {
+                                  /* Clear RX error/timeout events in the DW IC status register. */
+                                  dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR);
+                              }
+                       }//if value check
+                       else if (ulNotifiedValue > TAG_NUM)
+                       {
+                          ;;
+                       }
+              	} // elseif !=0 
         }//if signalwait
-    }
+        else
+        {
+            printf("Wait \n\n");
+        }
+    } // while(1) 
 }
 
 int rcm_tx(void)
@@ -1367,9 +1426,10 @@ int rcm_tx(void)
       dwt_writetxfctrl(sizeof(rcm_msg), 0, 0); /* Zero offset in TX buffer, no ranging. */
 
       /* Start transmission. */
+      //nrf_gpio_pin_toggle(NRF_GPIO_PIN_MAP(0,24));  
       dwt_starttx(DWT_START_TX_IMMEDIATE); //DWT_START_TX_DELAYED
       while (!(dwt_read32bitreg(SYS_STATUS_ID) & SYS_STATUS_TXFRS_BIT_MASK))
       {};
 
-      dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_TXFRS_BIT_MASK);
+      dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_TXFRS_BIT_MASK);     
 }

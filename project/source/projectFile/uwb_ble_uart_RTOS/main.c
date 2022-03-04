@@ -211,7 +211,7 @@ static TickType_t xLastWakeTime;
 static TaskHandle_t m_logger_thread; /**< Definition of Logger thread. */
 #endif
 static TaskHandle_t uwb_thread;
-
+static TaskHandle_t filter_thread;
 #define FPU_EXCEPTION_MASK 0x0000009F
 void FPU_IRQHandler(void) {
   uint32_t *fpscr = (uint32_t *)(FPU->FPCAR + 0x40);
@@ -938,7 +938,6 @@ static void clock_init(void) {
 
 static void timer_event(void) {
   if (status_flag == 1) {
-
     // xTaskNotify(uwb_thread, (1<<0), eSetBits);
     if (cnt == 0) {
       xTaskNotify(uwb_thread, (0 << 0), eSetBits);
@@ -1119,7 +1118,8 @@ int ds_resp(void) {
     val[i].Pk = 0;
     val[i].KG = 0;
   }
-
+    //char *filename = "C:\\0304\\data_logging_0304_3.txt"; //Used to be here
+    //FILE *fp = fopen(filename, "w");
 
   /* Loop forever responding to ranging requests. */
   while (1) {
@@ -1143,8 +1143,6 @@ int ds_resp(void) {
         Round_Max = 0;
         Dist_Max = 0;
       } else if (ulNotifiedValue != 0) {
-        //char *filename = "C:\\0304\\data_logging_0304_3.txt";
-        //FILE *fp = fopen(filename, "w");
         if (Range_Round[ulNotifiedValue] == 1 && ulNotifiedValue < TAG_NUM) {
           
           nrf_gpio_pin_toggle(NRF_GPIO_PIN_MAP(0, 24));
@@ -1250,7 +1248,10 @@ int ds_resp(void) {
                   tof = tof_dtu * DWT_TIME_UNITS;
                   distance = tof * SPEED_OF_LIGHT;
 
-                  //fprintf(&fp, "[%d],%.2f",ulNotifiedValue,distance);
+                  char *filename = "C:\\0304\\data_logging_0304_6.txt"; //Used to be here
+                  FILE *fp = fopen(filename, "a");
+                  fprintf(fp, "[%d],%.2f",ulNotifiedValue,distance);
+
 
                   printf("@@@ DIST [%d] : %3.2f m @@@ \n", ulNotifiedValue, distance);
 
@@ -1278,7 +1279,9 @@ int ds_resp(void) {
                       val[ulNotifiedValue].Pk = Pp - val[ulNotifiedValue].KG * H * Pp; 
                   }
                   printf("Fitered distance [%d] : %.2f\n\n",ulNotifiedValue, val[ulNotifiedValue].X);
-                  //fprintf(fp, ",%.2f,",val[ulNotifiedValue].X);
+                  fprintf(fp, ",%.2f,",val[ulNotifiedValue].X);
+                  fclose(fp);
+
 
 
                   // Sleep(RNG_DELAY_MS - 10);  //start couple of ms earlier
@@ -1335,9 +1338,10 @@ int ds_resp(void) {
           }
         } // if value check
         else if (ulNotifiedValue == TAG_NUM) {
-           //    fprintf(fp, "\n");
-           //   fclose(fp);
-           //FILE *fp = fopen(filename, "a");
+               char *filename = "C:\\0304\\data_logging_0304_6.txt"; //Used to be here
+               FILE *fp = fopen(filename, "a");
+               fprintf(fp, "\n");
+               fclose(fp);
         }
       } // elseif !=0
     }   // if signalwait
@@ -1361,3 +1365,4 @@ int rcm_tx(void) {
 
   dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_TXFRS_BIT_MASK);
 }
+

@@ -4,6 +4,7 @@
 #include "nrf.h"
 #include <stdint.h>
 #include <string.h>
+#include <stdio.h>
 /*Softdevice Include*/
 #include "app_timer.h"
 #include "nrf_sdh.h"
@@ -57,7 +58,7 @@
 
 #define APP_BLE_OBSERVER_PRIO 3                /**< Application's BLE observer priority. You shouldn't need to modify this value. */
 #define APP_BLE_CONN_CFG_TAG 1                 /**< A tag identifying the SoftDevice BLE configuration. */
-#define UWB_ROUND_INTERVAL APP_TIMER_TICKS(24) // APP_TIMER_TICKS(30)   //1 : 60ms, 0.06               /**< Battery level measurement interval (ticks). This value corresponds to 120 seconds. */
+#define UWB_ROUND_INTERVAL APP_TIMER_TICKS(24) // 24ms /**< Battery level measurement interval (ticks). This value corresponds to 120 seconds. */
 
 //#define MIN_CONN_INTERVAL               MSEC_TO_UNITS(500, UNIT_1_25_MS)        /**< Minimum acceptable connection interval (0.5 seconds).  */
 //#define MAX_CONN_INTERVAL               MSEC_TO_UNITS(1000, UNIT_1_25_MS)       /**< Maximum acceptable connection interval (1 second). */
@@ -180,22 +181,29 @@ static uint8_t Round_Warning_ID;       /**< Definition of the Warning of round i
 static uint8_t SDES_Flag;              /**< Session Discard for Establish SEND Flag. For BLE & UWB >**/
 static uint8_t SDESA_Flag;             /**< Session Discard for Establish SEND ACK Flag. For BLE & UWB >**/
 
-static QueueHandle_t xQueue;         // Message Queue for BLE-UWB
+static QueueHandle_t xQueue1;         // Message Queue for BLE-UWB
+static QueueHandle_t xQueue2;         // Message Queue for BLE-Filter
 
 typedef struct Task_Message {
   uint8_t round;
   uint8_t ble_evt;
 } T_Msg; // ble->uwb Message
 
+typedef struct Filter_Message {
+  uint8_t round;
+} F_Msg; // ble->filter Message
+
 typedef struct _values
 {
-  double X[8];
-  double Pk[8];
-  double KG[8];
+  double X;
+  double Pk;
+  double KG;
 }k_values; // Storing filter's Estimated result
 
-#define QUEUE_LENGTH 10 // BLE-UWB Queue length 
-#define QUEUE_ITEM_SIZE sizeof(T_Msg) // BLE-UWB Queue item size
+#define QUEUE_LENGTH1 10 // BLE-UWB Queue length 
+#define QUEUE_ITEM_SIZE1 sizeof(T_Msg) // BLE-UWB Queue item size
+#define QUEUE_LENGTH2 8 // BLE-UWB Queue length 
+#define QUEUE_ITEM_SIZE2 sizeof(F_Msg) // BLE-Filter Queue item size
 
 static TickType_t xLastWakeTime;
 
@@ -203,7 +211,7 @@ static TickType_t xLastWakeTime;
 static TaskHandle_t m_logger_thread; /**< Definition of Logger thread. */
 #endif
 static TaskHandle_t uwb_thread;
-static TaskHandle_t filter_thread;
+
 #define FPU_EXCEPTION_MASK 0x0000009F
 void FPU_IRQHandler(void) {
   uint32_t *fpscr = (uint32_t *)(FPU->FPCAR + 0x40);
@@ -436,9 +444,9 @@ static void RECIVE_MSG_handler(uint8_t *r_data) {
         UWB_TO_BLE.round = r_data[3];
         // UWB_TO_BLE.ble_evt = 0;
 
-        xQueueSendToBack(xQueue, &UWB_TO_BLE, xTicksToWait);
+        xQueueSendToBack(xQueue1, &UWB_TO_BLE, xTicksToWait);
       }
-      printf("<info> Session Established \n");
+      printf("<info> Session Established \n\n");
     } else {
       printf("%d", r_data[2]);
       printf("<info> ACK Fail\n");
@@ -684,8 +692,13 @@ static void ble_evt_handler(ble_evt_t const *p_ble_evt, void *p_context) {
 
   case BLE_GAP_EVT_DISCONNECTED: {
     printf("\n <info> Central link 0x%x disconnected (reason: 0x%x)\n", p_gap_evt->conn_handle, p_gap_evt->params.disconnected.reason);
+    F_Msg BLE_TO_FILTER;
+    const TickType_t xTicksToWait = pdMS_TO_TICKS(1);
 
     round = Handler1[p_gap_evt->conn_handle];
+    BLE_TO_FILTER.round = round;
+    xQueueSendToBack(xQueue2, &BLE_TO_FILTER, xTicksToWait);
+
     Handler2[round - 1] = p_gap_evt->conn_handle;
     TAG_ID[round - 1] = 0;
     m_range_round[round] = 0;
@@ -925,6 +938,7 @@ static void clock_init(void) {
 
 static void timer_event(void) {
   if (status_flag == 1) {
+
     // xTaskNotify(uwb_thread, (1<<0), eSetBits);
     if (cnt == 0) {
       xTaskNotify(uwb_thread, (0 << 0), eSetBits);
@@ -950,11 +964,14 @@ static void timer_event(void) {
     } else if (cnt == 7) {
       xTaskNotify(uwb_thread, (7 << 0), eSetBits);
       cnt++;
+
     } else if (cnt > 7 && cnt != 9) {
+      xTaskNotify(uwb_thread, (8 << 0), eSetBits);
       cnt++; 
     } else if (cnt == 9) {
       cnt = 0;
       }
+
   } // IF status_flag
   else {
     ;
@@ -1031,9 +1048,9 @@ int main(void) {
   uwb_timers_start();
 
   nrf_gpio_cfg_output(NRF_GPIO_PIN_MAP(0, 24));
-  
-  // Queue Creation (BLE->UWB, UWB->Filter)
-  xQueue = xQueueCreate(QUEUE_LENGTH, QUEUE_ITEM_SIZE);
+  // Queue Creation (BLE->UWB) & (BLE->Filter)
+  xQueue1 = xQueueCreate(QUEUE_LENGTH1, QUEUE_ITEM_SIZE1);
+  xQueue2 = xQueueCreate(QUEUE_LENGTH2, QUEUE_ITEM_SIZE2);
 
   if (pdPASS != xTaskCreate(ds_resp, "UWB", 1024, NULL, 2, &uwb_thread)) {
     APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
@@ -1059,6 +1076,7 @@ int ds_resp(void) {
   // uint8_t Safe_Check[7] = {0,0,0,0,0,0,0};  /**< Checking the Safe Range Round_ID. >**/
   uint8_t Range_Round[TAG_NUM];
   T_Msg FROM_BLE;
+  F_Msg FROM_BLE2;
 
   port_set_dw_ic_spi_fastrate();
 
@@ -1094,12 +1112,30 @@ int ds_resp(void) {
   // dwt_setlnapamode(DWT_LNA_ENABLE | DWT_PA_ENABLE);
   dwt_setleds(DWT_LEDS_ENABLE | DWT_LEDS_INIT_BLINK);
 
+  k_values val[8];
+  for (int i=0; i<TAG_NUM; i++)
+  {
+    val[i].X = 0;
+    val[i].Pk = 0;
+    val[i].KG = 0;
+  }
+
+
   /* Loop forever responding to ranging requests. */
   while (1) {
+    if (xQueueReceive(xQueue2, &FROM_BLE2, xTicksToWait) == pdPASS)
+    {
+        if(0<FROM_BLE2.round<8)
+        {
+          val[FROM_BLE2.round].X=0;
+          val[FROM_BLE2.round].Pk=0;
+          val[FROM_BLE2.round].KG=0;
+        }
+    }
     if (xTaskNotifyWait(0xFFFFFFFF, 0, &ulNotifiedValue, portMAX_DELAY) == pdTRUE) {
       if (ulNotifiedValue == 0) {
         rcm_tx();
-        if (xQueueReceive(xQueue, &FROM_BLE, xTicksToWait) != pdPASS) {
+        if (xQueueReceive(xQueue1, &FROM_BLE, xTicksToWait) != pdPASS) {
           ;
         } else {
           Range_Round[FROM_BLE.round] = 1;
@@ -1107,7 +1143,10 @@ int ds_resp(void) {
         Round_Max = 0;
         Dist_Max = 0;
       } else if (ulNotifiedValue != 0) {
+        //char *filename = "C:\\0304\\data_logging_0304_3.txt";
+        //FILE *fp = fopen(filename, "w");
         if (Range_Round[ulNotifiedValue] == 1 && ulNotifiedValue < TAG_NUM) {
+          
           nrf_gpio_pin_toggle(NRF_GPIO_PIN_MAP(0, 24));
           // printf("This is DS_RESP \n\n");
           dwt_setpreambledetecttimeout(0);
@@ -1211,48 +1250,41 @@ int ds_resp(void) {
                   tof = tof_dtu * DWT_TIME_UNITS;
                   distance = tof * SPEED_OF_LIGHT;
 
-                  printf("@@@ DIST %d: %3.3f m @@@ \n", ulNotifiedValue, distance);
+                  //fprintf(&fp, "[%d],%.2f",ulNotifiedValue,distance);
+
+                  printf("@@@ DIST [%d] : %3.2f m @@@ \n", ulNotifiedValue, distance);
 
                   /* Filter Task */
-                  k_values val;
-
-                  if(val.X[ulNotifiedValue] == 0)
-                  {
+                  if(val[ulNotifiedValue].X == 0)
+                  {   
+                      /* Calculate Prediction of State & Covariance vector */
                       double Xp = A * distance;
                       double Pp = A * P * A + Q;
 
                       /* Calculate Kalman Gain */
-                      val.KG[ulNotifiedValue] = (Pp * H) / (Pp + R);
-                      //printf("Kalman Gain = %.3f \n", k.KG);
+                      val[ulNotifiedValue].KG = (Pp * H) / (Pp + R);
 
                       /* Estimate State & Covariance vector */
-                      val.X[ulNotifiedValue] = Xp + val.KG[ulNotifiedValue]*(distance - H * Xp);
-                      //printf("Xk = %.3f \n", k.X);
-
-                      val.Pk[ulNotifiedValue] = Pp - val.KG[ulNotifiedValue] * H * Pp;
-                      //printf("Pk = %.3f \n", k.Pk);
+                      val[ulNotifiedValue].X = Xp + val[ulNotifiedValue].KG*(distance - H * Xp);
+                      val[ulNotifiedValue].Pk = Pp - val[ulNotifiedValue].KG * H * Pp;
                   }
                   else
                   {
-                      double Xp = A * val.X[ulNotifiedValue];
-                      double Pp = A * val.Pk[ulNotifiedValue] * A + Q;
+                      double Xp = A * val[ulNotifiedValue].X;
+                      double Pp = A * val[ulNotifiedValue].Pk * A + Q;
 
-                      /* Calculate Kalman Gain */
-                      val.KG[ulNotifiedValue] = (Pp * H) / (Pp + R); 
-                      //printf("Kalman Gain = %.3f \n", k.KG);
-
-                      /* Estimate State & Covariance vector */
-                      val.X[ulNotifiedValue] = Xp + val.KG[ulNotifiedValue]*(distance - H * Xp); 
-                      //printf("Xk = %.3f \n", k.X);
-
-                      val.Pk[ulNotifiedValue] = Pp - val.KG[ulNotifiedValue] * H * Pp; 
+                      val[ulNotifiedValue].KG = (Pp * H) / (Pp + R); 
+                      val[ulNotifiedValue].X = Xp + val[ulNotifiedValue].KG*(distance - H * Xp); 
+                      val[ulNotifiedValue].Pk = Pp - val[ulNotifiedValue].KG * H * Pp; 
                   }
-                  printf("Fitered distance [%d] : %.3f\n\n",ulNotifiedValue, val.X[ulNotifiedValue]);
+                  printf("Fitered distance [%d] : %.2f\n\n",ulNotifiedValue, val[ulNotifiedValue].X);
+                  //fprintf(fp, ",%.2f,",val[ulNotifiedValue].X);
+
 
                   // Sleep(RNG_DELAY_MS - 10);  //start couple of ms earlier
 
                   // Check the Out of Range Round.
-                  if (distance > Range_Check) {
+                  if (val[ulNotifiedValue].X > Range_Check) {
                     // Safe_Check Algorithm
                     OutofRange[ulNotifiedValue]++;
                     if (OutofRange[ulNotifiedValue] == 3) {
@@ -1302,9 +1334,10 @@ int ds_resp(void) {
             dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR);
           }
         } // if value check
-        else if (ulNotifiedValue > TAG_NUM) {
-          ;
-          ;
+        else if (ulNotifiedValue == TAG_NUM) {
+           //    fprintf(fp, "\n");
+           //   fclose(fp);
+           //FILE *fp = fopen(filename, "a");
         }
       } // elseif !=0
     }   // if signalwait
